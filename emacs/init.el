@@ -412,7 +412,8 @@
         '((python-mode . python-ts-mode)
           (c-mode . c-ts-mode)
           (c++-mode . c++-ts-mode)
-          (rust-mode . rust-ts-mode))))
+          (rust-mode . rust-ts-mode)
+          (sh-mode . bash-ts-mode))))
 
 (use-package eglot
   :config
@@ -420,11 +421,14 @@
                '(c++-ts-mode . ("clangd")))
   (add-to-list 'eglot-server-programs
                '(python-ts-mode . ("ty" "server")))
+  (add-to-list 'eglot-server-programs
+               '(bash-ts-mode . ("bash-language-server" "start")))
   :hook
   ;; eglot in rust is managed by rustic-mode
   (c-ts-mode . eglot-ensure)
   (c++-ts-mode . eglot-ensure)
-  (python-ts-mode . eglot-ensure))
+  (python-ts-mode . eglot-ensure)
+  (bash-ts-mode . eglot-ensure))
 
 (use-package dape
   :hook
