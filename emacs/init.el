@@ -1,3 +1,5 @@
+;;; init.el --- Emacs initialization -*- lexical-binding: t; -*-
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Basic UI
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -333,7 +335,7 @@
    (lambda (project-root)
      (or (string-search ".cache/bazel" project-root)
          (string-search ".rustup" project-root))))
-  (projectile-switch-project-action 'projectile-dired)
+  (projectile-switch-project-action #'magit-status)
 
   :bind-keymap
   ("C-c p" . projectile-command-map)
@@ -396,6 +398,8 @@
   (magit-pull-branch (format "origin/%s" (magit-main-branch)) (magit-pull-arguments)))
 
 (use-package magit
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
   :config
   (transient-append-suffix 'magit-push "t"
     '("g" magit-push-to-gerrit))
