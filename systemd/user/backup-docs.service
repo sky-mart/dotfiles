@@ -4,3 +4,4 @@ Description=Backup Docs
 [Service]
 Type=oneshot
 ExecStart=%h/.local/bin/backup-docs.sh
+Environment=SSH_AUTH_SOCK=%t/ssh-agent.socket
