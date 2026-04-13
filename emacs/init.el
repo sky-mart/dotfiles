@@ -91,7 +91,9 @@
 (global-unset-key (kbd "<down-mouse-8>"))
 (global-unset-key (kbd "<down-mouse-9>"))
 
+;; Disable secondary selection completely
 (global-unset-key (kbd "M-<down-mouse-1>"))
+(global-unset-key (kbd "M-<drag-mouse-1>"))
 (global-unset-key (kbd "M-<mouse-1>"))
 
 (global-set-key (kbd "C-x 2") (lambda ()
@@ -399,7 +401,7 @@
 
 (use-package magit
   :custom
-  (magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
   :config
   (transient-append-suffix 'magit-push "t"
     '("g" magit-push-to-gerrit))
@@ -417,7 +419,11 @@
           (c-mode . c-ts-mode)
           (c++-mode . c++-ts-mode)
           (rust-mode . rust-ts-mode)
-          (sh-mode . bash-ts-mode))))
+          (sh-mode . bash-ts-mode))
+        treesit-font-lock-level 4))
+
+(use-package nix-ts-mode
+  :mode "\\.nix\\'")
 
 (use-package eglot
   :config
@@ -676,3 +682,7 @@
   :config
   (setq plantuml-jar-path "/home/vlad/.local/bin/plantuml-1.2023.5.jar")
   (setq plantuml-default-exec-mode 'jar))
+
+;; TFH specific
+(if (file-exists-p "~/.tfh/emacs.el")
+    (load "~/.tfh/emacs.el"))
