@@ -44,6 +44,11 @@
 
 (setq-default word-wrap t) ; Enable word wrap
 
+(setq
+ global-display-line-numbers-mode -1
+ display-line-numbers-type 'relative
+ display-line-numbers-current-absolute t)
+
 (defun linum () (display-line-numbers-mode 1))
 (add-hook 'prog-mode-hook 'linum)
 
@@ -115,6 +120,13 @@
 
 (global-set-key (kbd "C-r") 'replace-string)
 (setq replace-start-from-point nil) ; Start replacements from the start of the file
+
+(defun display-ansi-colors ()
+  (interactive)
+  (let ((inhibit-read-only t))
+    (ansi-color-apply-on-region (point-min) (point-max))))
+
+(global-set-key (kbd "C-'") 'kill-whole-line)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Package setup
@@ -547,18 +559,11 @@
 
 (use-package ansible)
 
-(defun display-ansi-colors ()
-  (interactive)
-  (let ((inhibit-read-only t))
-    (ansi-color-apply-on-region (point-min) (point-max))))
+(add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 
-(defun mart/ansi-colors-hook (compilation-buffer compilation-result)
-  (switch-to-buffer compilation-buffer)
-  (display-ansi-colors))
-
-(add-hook 'compilation-finish-functions 'mart/ansi-colors-hook)
-
-(setq compilation-scroll-output 'first-error)
+(setq
+ compilation-scroll-output 'first-error
+ ansi-color-for-compilation-mode t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Python
