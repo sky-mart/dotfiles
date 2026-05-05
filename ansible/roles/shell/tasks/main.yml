@@ -1,0 +1,54 @@
+- name: Install zsh and its deps
+  ansible.builtin.apt:
+    pkg:
+    - fonts-powerline
+    - git
+    - zoxide
+    - zsh
+    - zsh-syntax-highlighting
+    # is installed from source
+    # git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
+    # - fzf
+    update_cache: true
+    state: present
+  become: true
+
+- name: Install oh my zsh
+  ansible.builtin.git:
+    repo: https://github.com/ohmyzsh/ohmyzsh.git
+    dest: ~/.oh-my-zsh
+    depth: 1
+    version: e50dd3417c8b9e072593b6c14473e1360bd88b02
+
+- name: Copy my zsh config
+  ansible.builtin.copy:
+    src: .zshrc
+    dest: ~/.zshrc
+
+- name: Install zsh-autosuggestions plugin
+  ansible.builtin.git:
+    repo: https://github.com/zsh-users/zsh-autosuggestions.git
+    dest: ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+    depth: 1
+    version: 39aa7bed3a477af1eaa3aa72bcb6e6e616aa7dc0
+
+- name: Install zsh-syntax-highlighting plugin
+  ansible.builtin.git:
+    repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+    dest: ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+    depth: 1
+    version: 0.8.0
+
+# also install the fzf binary
+- name: Install fzf-zsh-plugin plugin
+  ansible.builtin.git:
+    repo: https://github.com/unixorn/fzf-zsh-plugin.git
+    dest: ~/.oh-my-zsh/custom/plugins/fzf-zsh-plugin
+    depth: 1
+    version: 8343e80065e510c2033d16f93472c3ae86be6fe4
+
+- name: Set the shell for a user
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    shell: /usr/bin/zsh
+  become: true
