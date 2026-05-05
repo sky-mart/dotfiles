@@ -1,0 +1,60 @@
+- name: Create the user executables directory
+  ansible.builtin.file:
+    path: ~/.local/bin
+    state: directory
+    mode: "0755"
+
+- name: Link backup scripts
+  ansible.builtin.file:
+    src: "{{ item }}.sh"
+    path: "~/.local/bin/{{ item }}.sh"
+    state: link
+    force: true
+  loop:
+    - backup-docs
+    - backup-notes
+  when: (ansible_connection | default("ssh")) == "local"
+
+- name: Copy backup scripts
+  ansible.builtin.copy:
+    src: "{{ item }}.sh"
+    dest: "~/.local/bin/{{ item }}.sh"
+  loop:
+    - backup-docs
+    - backup-notes
+  when: (ansible_connection | default("ssh")) != "local"
+
+- name: Link backup systemd user files
+  ansible.builtin.file:
+    src: "{{ item }}"
+    path: "~/.config/systemd/user/{{ item }}"
+    state: link
+    force: true
+  loop:
+    - backup-docs.service
+    - backup-docs.timer
+    - backup-notes.service
+    - backup-notes.timer
+  when: (ansible_connection | default("ssh")) == "local"
+
+- name: Copy backup systemd user files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "~/.config/systemd/user/{{ item }}"
+  loop:
+    - backup-docs.service
+    - backup-docs.timer
+    - backup-notes.service
+    - backup-notes.timer
+  when: (ansible_connection | default("ssh")) != "local"
+
+- name: Enable backup systemd services to start on boot
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    scope: user
+    enabled: true
+    daemon_reload: true
+    force: true
+  loop:
+    - backup-docs.timer
+    - backup-notes.timer

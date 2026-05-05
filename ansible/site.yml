@@ -1,0 +1,16 @@
+- hosts: all
+  roles:
+    - shell
+
+
+- hosts: desktops
+  roles:
+    - desktop_notes
+    - emacs
+    - desktop_configs
+
+  tasks:
+    - name: Setup notes and docs backups
+      include_role:
+        name: backups
+      when: (home_pc | default(false)) == true

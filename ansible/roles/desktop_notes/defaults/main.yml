@@ -1,0 +1,7 @@
+notes_path: "~/notes"
+service_name: "mount-dav-notes"
+server_addr: "h3007161.stratoserver.net"
+server_port: "1443"
+server_user: "vlad"
+server_password: ""
+server_crt_path: "notes.crt"
