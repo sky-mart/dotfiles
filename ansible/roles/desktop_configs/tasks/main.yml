@@ -5,16 +5,7 @@
     mode: "0755"
   when: (home_pc | default(false)) == true
 
-- name: Install fira code font
-  ansible.builtin.apt:
-    pkg:
-    - fonts-firacode
-    update_cache: true
-    state: present
-  become: true
-
 # TODO: install xkb-switch
-
 - name: Copy useful scripts
   ansible.builtin.copy:
     src: "{{ item }}.sh"
@@ -24,3 +15,32 @@
     - blconnect
     - kb-layout
   when: (home_pc | default(false)) == true
+
+- name: Install basic packages
+  ansible.builtin.apt:
+    pkg:
+    - fonts-firacode
+    - tmux
+    - vim
+    update_cache: true
+    state: present
+  become: true
+
+- name: Create tmux config directory
+  ansible.builtin.file:
+    path: ~/.config/tmux
+    state: directory
+
+- name: Link my tmux config
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/tmux.conf"
+    path: "{{ ansible_env.HOME }}/.config/tmux/tmux.conf"
+    state: link
+    force: true
+  when: (ansible_connection | default("ssh")) == "local"
+
+- name: Copy my zsh config
+  ansible.builtin.copy:
+    src: tmux.conf
+    dest: ~/.config/tmux/tmux.conf
+  when: (ansible_connection | default('ssh')) != "local"
