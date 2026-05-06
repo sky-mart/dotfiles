@@ -1,3 +1,8 @@
+- name: Ensure the notes password is provided
+  ansible.builtin.assert:
+    that: notes_password
+    fail_msg: "Provide the backup password"
+
 - name: Replace ~ in the path
   set_fact:
     expanded_path: "{{ notes_path | replace('~', ansible_env.HOME) }}"
@@ -37,13 +42,14 @@
 
 - name: Add the server password
   ansible.builtin.copy:
-   dest: ~/.davfs2/secrets
-   content: "https://{{ server_addr }}:{{ server_port }} {{ server_user }} {{ server_password }}"
-   mode: '0600'
+    dest: ~/.davfs2/secrets
+    content: "https://{{ notes_server_addr }}:{{ notes_server_port }} {{ notes_server_user }} {{ notes_password }}"
+    mode: '0600'
+  no_log: true
 
 - name: Copy the notes certificate
   ansible.builtin.copy:
-    src: "{{ server_crt_path }}"
+    src: "{{ notes_cert }}"
     dest: ~/.davfs2/certs/notes.crt
 
 - name: Copy the template config
@@ -73,7 +79,7 @@
 - name: Ensure a specific line is present in a file
   ansible.builtin.lineinfile:
     path: /etc/fstab
-    line: "https://{{ server_addr }}:{{ server_port }} {{ expanded_path }} davfs rw,user,uid={{ user_uid.stdout }},noauto 0 0"
+    line: "https://{{ notes_server_addr }}:{{ notes_server_port }} {{ expanded_path }} davfs rw,user,uid={{ user_uid.stdout }},noauto 0 0"
   become: true
 
 - name: Create the user systemd directory
@@ -83,27 +89,14 @@
     mode: "0755"
 
 - name: Copy the systemd unit file
-  ansible.builtin.copy:
-    dest: "~/.config/systemd/user/{{ service_name }}.service"
-    content: |
-      [Unit]
-      Description=Mount WebDAV Notes Service
-      After=network-online.target
-      Wants=network-online.target
-
-      [Service]
-      Type=oneshot
-      ExecStart=bash -c 'for i in {1..15}; do if ping -c 1 {{ server_addr }}; then mount {{ expanded_path }}; exit 0; else sleep 1; fi; done; exit 1'
-      ExecStop=umount {{ expanded_path }}
-      RemainAfterExit=true
-
-      [Install]
-      WantedBy=default.target
+  ansible.builtin.template:
+    src: mount-notes.service.j2
+    dest: "~/.config/systemd/user/{{ notes_service }}.service"
     mode: '0644'
 
 - name: Enable the service to start on boot
   ansible.builtin.systemd:
-    name: "{{ service_name }}"
+    name: "{{ notes_service }}"
     enabled: true
     scope: user
 

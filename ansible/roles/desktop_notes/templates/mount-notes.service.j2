@@ -1,0 +1,13 @@
+[Unit]
+Description=Mount WebDAV Notes Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=bash -c 'for i in {1..15}; do if ping -c 1 {{ notes_server_addr }}; then mount {{ expanded_path }}; exit 0; else sleep 1; fi; done; exit 1'
+ExecStop=umount {{ expanded_path }}
+RemainAfterExit=true
+
+[Install]
+WantedBy=default.target

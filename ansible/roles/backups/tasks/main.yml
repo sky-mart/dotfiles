@@ -1,41 +1,22 @@
+- name: Ensure the backup password is provided
+  ansible.builtin.assert:
+    that: backup_password
+    fail_msg: "Provide the backup password"
+
 - name: Create the user executables directory
   ansible.builtin.file:
     path: ~/.local/bin
     state: directory
     mode: "0755"
 
-- name: Link backup scripts
-  ansible.builtin.file:
-    src: "{{ item }}.sh"
-    path: "~/.local/bin/{{ item }}.sh"
-    state: link
-    force: true
-  loop:
-    - backup-docs
-    - backup-notes
-  when: (ansible_connection | default("ssh")) == "local"
-
 - name: Copy backup scripts
   ansible.builtin.copy:
     src: "{{ item }}.sh"
     dest: "~/.local/bin/{{ item }}.sh"
+    mode: 0755
   loop:
     - backup-docs
     - backup-notes
-  when: (ansible_connection | default("ssh")) != "local"
-
-- name: Link backup systemd user files
-  ansible.builtin.file:
-    src: "{{ item }}"
-    path: "~/.config/systemd/user/{{ item }}"
-    state: link
-    force: true
-  loop:
-    - backup-docs.service
-    - backup-docs.timer
-    - backup-notes.service
-    - backup-notes.timer
-  when: (ansible_connection | default("ssh")) == "local"
 
 - name: Copy backup systemd user files
   ansible.builtin.copy:
@@ -46,7 +27,26 @@
     - backup-docs.timer
     - backup-notes.service
     - backup-notes.timer
-  when: (ansible_connection | default("ssh")) != "local"
+
+- name: Install restic
+  ansible.builtin.apt:
+    pkg: restic
+    update_cache: true
+    state: present
+  become: true
+
+- name: Create the restic config directory
+  ansible.builtin.file:
+    path: ~/.config/restic
+    state: directory
+    mode: "0755"
+
+- name: Set up the backup password
+  ansible.builtin.copy:
+    content: "{{ backup_password }}"
+    dest: ~/.config/restic/password
+    mode: 0600
+  no_log: true
 
 - name: Enable backup systemd services to start on boot
   ansible.builtin.systemd:

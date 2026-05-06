@@ -20,10 +20,19 @@
     depth: 1
     version: e50dd3417c8b9e072593b6c14473e1360bd88b02
 
+- name: Link my zsh config
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/.zshrc"
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    state: link
+    force: true
+  when: (ansible_connection | default("ssh")) == "local"
+
 - name: Copy my zsh config
   ansible.builtin.copy:
     src: .zshrc
     dest: ~/.zshrc
+  when: (ansible_connection | default('ssh')) != "local"
 
 - name: Install zsh-autosuggestions plugin
   ansible.builtin.git:

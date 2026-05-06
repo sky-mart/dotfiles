@@ -1,15 +1,20 @@
 - name: Install emacs
   ansible.builtin.apt:
-    pkg:
-    - emacs
+    pkg: emacs
     update_cache: true
     state: present
   become: true
 
+- name: Create emacs directory
+  ansible.builtin.file:
+    path: ~/.emacs.d
+    state: directory
+    mode: "0755"
+
 - name: Link emacs config
   ansible.builtin.file:
-    src: init.el
-    path: "~/.emacs.d/init.el"
+    src: "{{ role_path }}/files/init.el"
+    path: "{{ ansible_env.HOME }}/.emacs.d/init.el"
     state: link
     force: true
   when: (ansible_connection | default("ssh")) == "local"
@@ -26,19 +31,10 @@
     state: directory
     mode: "0755"
 
-- name: Link emacs systemd user file
-  ansible.builtin.file:
-    src: emacs.service
-    path: "~/.config/systemd/user/emacs.service"
-    state: link
-    force: true
-  when: ansible_connection == "local"
-
 - name: Copy emacs systemd user file
   ansible.builtin.copy:
     src: emacs.service
     dest: "~/.config/systemd/user/emacs.service"
-  when: (ansible_connection | default('ssh')) != "local"
 
 - name: Enable emacs systemd service to start on boot
   ansible.builtin.systemd:

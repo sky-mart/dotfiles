@@ -1,10 +1,6 @@
 - hosts: all
   roles:
     - shell
-
-
-- hosts: desktops
-  roles:
     - desktop_notes
     - emacs
     - desktop_configs
