@@ -1,19 +1,20 @@
-- name: Create the user executables directory
-  ansible.builtin.file:
-    path: ~/.local/bin
-    state: directory
-    mode: "0755"
-  when: (home_pc | default(false)) == true
+- name: Install user script
+  block:
+    - name: Create the user executables directory
+      ansible.builtin.file:
+        path: ~/.local/bin
+        state: directory
+        mode: "0755"
 
-# TODO: install xkb-switch
-- name: Copy useful scripts
-  ansible.builtin.copy:
-    src: "{{ item }}.sh"
-    dest: "~/.local/bin/{{ item }}.sh"
-    mode: 0755
-  loop:
-    - blconnect
-    - kb-layout
+    # TODO: install xkb-switch
+    - name: Copy useful scripts
+      ansible.builtin.copy:
+        src: "{{ item }}.sh"
+        dest: "~/.local/bin/{{ item }}.sh"
+        mode: 0755
+      loop:
+        - blconnect
+        - kb-layout
   when: (home_pc | default(false)) == true
 
 - name: Install basic packages
@@ -31,16 +32,18 @@
     path: ~/.config/tmux
     state: directory
 
-- name: Link my tmux config
-  ansible.builtin.file:
-    src: "{{ role_path }}/files/tmux.conf"
-    path: "{{ ansible_env.HOME }}/.config/tmux/tmux.conf"
-    state: link
-    force: true
-  when: (ansible_connection | default("ssh")) == "local"
+- name: Install tmux config
+  block:
+    - name: Link tmux config locally
+      ansible.builtin.file:
+        src: "{{ role_path }}/files/tmux.conf"
+        path: "{{ ansible_env.HOME }}/.config/tmux/tmux.conf"
+        state: link
+        force: true
+      when: (ansible_connection | default("ssh")) == "local"
 
-- name: Copy my zsh config
-  ansible.builtin.copy:
-    src: tmux.conf
-    dest: ~/.config/tmux/tmux.conf
-  when: (ansible_connection | default('ssh')) != "local"
+    - name: Copy tmux config remotely
+      ansible.builtin.copy:
+        src: tmux.conf
+        dest: ~/.config/tmux/tmux.conf
+      when: (ansible_connection | default('ssh')) != "local"

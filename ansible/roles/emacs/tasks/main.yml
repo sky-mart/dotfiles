@@ -11,19 +11,21 @@
     state: directory
     mode: "0755"
 
-- name: Link emacs config
-  ansible.builtin.file:
-    src: "{{ role_path }}/files/init.el"
-    path: "{{ ansible_env.HOME }}/.emacs.d/init.el"
-    state: link
-    force: true
-  when: (ansible_connection | default("ssh")) == "local"
+- name: Install emacs config
+  block:
+    - name: Link emacs config locally
+      ansible.builtin.file:
+        src: "{{ role_path }}/files/init.el"
+        path: "{{ ansible_env.HOME }}/.emacs.d/init.el"
+        state: link
+        force: true
+      when: (ansible_connection | default("ssh")) == "local"
 
-- name: Copy emacs config
-  ansible.builtin.copy:
-    src: init.el
-    dest: "~/.emacs.d/init.el"
-  when: (ansible_connection | default('ssh')) != "local"
+    - name: Copy emacs config remotely
+      ansible.builtin.copy:
+        src: init.el
+        dest: "~/.emacs.d/init.el"
+      when: (ansible_connection | default('ssh')) != "local"
 
 - name: Create the user systemd directory
   ansible.builtin.file:
