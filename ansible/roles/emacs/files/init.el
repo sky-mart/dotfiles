@@ -414,6 +414,7 @@
 (use-package magit
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+  (magit-completing-read-function #'magit-builtin-completing-read)
   :config
   (transient-append-suffix 'magit-push "t"
     '("g" magit-push-to-gerrit))
