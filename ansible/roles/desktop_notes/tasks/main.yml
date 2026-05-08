@@ -1,6 +1,8 @@
 - name: Ensure the notes password is provided
   ansible.builtin.assert:
-    that: notes_password
+    that:
+      - notes_password is defined
+      - notes_password | length > 0
     fail_msg: "Provide the backup password"
 
 - name: Replace ~ in the path
