@@ -23,14 +23,18 @@
     - fonts-firacode
     - tmux
     - vim
+    - alacritty
     update_cache: true
     state: present
   become: true
 
-- name: Create tmux config directory
+- name: Create config directories
   ansible.builtin.file:
-    path: ~/.config/tmux
+    path: ~/.config/{{ item }}
     state: directory
+  loop:
+    - tmux
+    - alacritty
 
 - name: Install tmux config
   block:
@@ -46,4 +50,20 @@
       ansible.builtin.copy:
         src: tmux.conf
         dest: ~/.config/tmux/tmux.conf
+      when: (ansible_connection | default('ssh')) != "local"
+
+- name: Install alacritty config
+  block:
+    - name: Link alacritty config locally
+      ansible.builtin.file:
+        src: "{{ role_path }}/files/alacritty.toml"
+        path: "{{ ansible_env.HOME }}/.config/alacritty/alacritty.toml"
+        state: link
+        force: true
+      when: (ansible_connection | default("ssh")) == "local"
+
+    - name: Copy alacritty config remotely
+      ansible.builtin.copy:
+        src: alacritty.toml
+        dest: ~/.config/alacritty/alacritty.toml
       when: (ansible_connection | default('ssh')) != "local"

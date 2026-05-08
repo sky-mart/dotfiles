@@ -1,0 +1,27 @@
+[general]
+# theme
+import = ["~/.config/alacritty/themes/nord.toml"]
+
+[scrolling]
+history = 10000
+
+[font]
+normal = { family = "Fira Code", style = "Regular" }
+size = 11
+
+[selection]
+save_to_clipboard = true
+
+[terminal]
+osc52 = "OnlyCopy"
+
+[keyboard]
+bindings = [
+  { key = "C", mods = "Control|Shift", action = "Copy" },
+  { key = "V", mods = "Control", action = "Paste" },
+]
+
+[mouse]
+bindings = [
+  { mouse = "Middle", action = "PasteSelection" }
+]
