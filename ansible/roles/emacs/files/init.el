@@ -573,7 +573,9 @@
 
 (use-package systemd)
 
+(use-package yaml-mode)
 (use-package ansible)
+(use-package ansible-doc)
 
 (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
 
