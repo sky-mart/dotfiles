@@ -436,15 +436,19 @@
 ;; Development
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(use-package tree-sitter
+(use-package treesit-auto
+  :ensure t
+  :custom
+  (treesit-auto-install 'prompt)
+  (treesit-font-lock-level 4)
+
   :config
-  (setq major-mode-remap-alist
-        '((python-mode . python-ts-mode)
-          (c-mode . c-ts-mode)
-          (c++-mode . c++-ts-mode)
-          (rust-mode . rust-ts-mode)
-          (sh-mode . bash-ts-mode))
-        treesit-font-lock-level 4))
+  (setq treesit-language-source-alist
+        (append treesit-language-source-alist
+                '((nix "https://github.com/nix-community/tree-sitter-nix")))
+        (treesit-auto-langs '(python c cpp rust bash nix)))
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode))
 
 (use-package nix-ts-mode
   :mode "\\.nix\\'")
