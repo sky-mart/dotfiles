@@ -285,29 +285,41 @@
 ;; Completion and search
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Completion mechanism
-(use-package ivy
-  :diminish ivy-mode
-  :bind (("C-s" . swiper)
-         ("C-x b" . ivy-switch-buffer))
-  :config
-  (ivy-mode 1)
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-display-style 'fancy)
-  (setq ivy-magic-slash-non-match-action nil))
+;; Completion UI
+(use-package vertico
+  :init
+  (vertico-mode 1))
 
-;; Additional help
-(use-package ivy-rich
-  :after ivy
-  :config
-  (ivy-rich-mode 1)
-  (setq ivy-rich-path-style 'abbrev))
+;; Flexible matching
+(use-package orderless
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides
+   '((file (styles partial-completion)))))
 
-;; Part of ivy?
-(use-package counsel
-  :bind (("M-x" . counsel-M-x))
-  :config
-  (counsel-mode 1))
+;; Rich annotations
+(use-package marginalia
+  :init
+  (marginalia-mode 1))
+
+;; Search + commands
+(use-package consult
+  :bind
+  (("C-s" . consult-line)
+   ("C-x b" . consult-buffer)
+   ("M-y" . consult-yank-pop)))
+
+
+
+(use-package embark
+  :bind
+  (("C-." . embark-act)
+   ("C-;" . embark-dwim)))
+
+(use-package embark-consult
+  :after (embark consult))
+
 
 (use-package flx)   ;; enable fuzzy matching
 
@@ -343,7 +355,7 @@
 (use-package projectile
   :diminish projectile-mode
   :custom
-  (projectile-completion-system 'ivy)
+  (projectile-completion-system 'default)
   (projectile-compile-use-comint-mode t)
   (projectile-ignored-project-function
    (lambda (project-root)
@@ -361,12 +373,11 @@
   (when (file-directory-p "~/projects/code")
     (setq projectile-project-search-path '("~/projects/code"))))
 
-(use-package counsel-projectile
-  :after projectile
-  :after counsel
+;; Projectile integration
+(use-package consult-projectile
+  :after (consult projectile)
   :bind
-  (("M-o" . counsel-projectile-find-file))
-  :config (counsel-projectile-mode))
+  (("M-o" . consult-projectile-find-file)))
 
 (use-package dashboard
   :config
