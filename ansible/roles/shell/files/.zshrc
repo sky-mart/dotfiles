@@ -82,6 +82,15 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
+# beautiful command line branch
+autoload -Uz vcs_info
+precmd() { vcs_info }
+
+zstyle ':vcs_info:git:*' formats ' %F{cyan} %b%f'
+
+setopt PROMPT_SUBST
+PROMPT=' %B%F{cyan}%1~%f%b${vcs_info_msg_0_} '
+
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"

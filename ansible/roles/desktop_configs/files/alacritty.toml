@@ -16,6 +16,9 @@ save_to_clipboard = true
 shell = { program = "/usr/bin/tmux", args = ["new"] }
 osc52 = "OnlyCopy"
 
+[env]
+TERM = "xterm-256color"
+
 [keyboard]
 bindings = [
   { key = "C", mods = "Control|Shift", action = "Copy" },
