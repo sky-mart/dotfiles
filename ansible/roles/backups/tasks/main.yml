@@ -2,7 +2,7 @@
   ansible.builtin.assert:
     that:
       - backup_password is defined
-      - bakcup_password | length > 0
+      - backup_password | length > 0
     fail_msg: "Provide the backup password"
 
 - name: Create the user executables directory
