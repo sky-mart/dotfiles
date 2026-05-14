@@ -6,7 +6,6 @@
         state: directory
         mode: "0755"
 
-    # TODO: install xkb-switch
     - name: Copy useful scripts
       ansible.builtin.copy:
         src: "{{ item }}.sh"
@@ -67,3 +66,8 @@
         src: alacritty.toml
         dest: ~/.config/alacritty/alacritty.toml
       when: (ansible_connection | default('ssh')) != "local"
+
+- name: Install KDE shortcuts
+  ansible.builtin.copy:
+    src: kglobalshortcutsrc
+    dest: ~/.config/kglobalshortcutsrc
