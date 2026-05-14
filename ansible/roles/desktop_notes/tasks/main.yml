@@ -66,6 +66,7 @@
     block: |
       [{{ expanded_path }}]
       use_locks 0
+      file_refresh 1
       trust_ca_cert notes.crt
 
 - name: Create the notes directory
