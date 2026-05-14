@@ -1,51 +1,70 @@
-- name: Create src directory
-  ansible.builtin.file:
-    path: ~/src
-    state: directory
-    mode: "0755"
-
-- name: Clone tree-sitter repo
-  ansible.builtin.git:
-    repo: "https://github.com/tree-sitter/tree-sitter.git"
-    dest: ~/src/tree-sitter
-
-- name: Build tree-sitter
-  ansible.builtin.command: make
-  args:
-    chdir: ~/src/tree-sitter
-
-- name: Install tree-sitter
-  ansible.builtin.command: make install PREFIX=/usr
-  args:
-    chdir: "{{ ansible_env.HOME }}/src/tree-sitter"
-  become: true
-
-- name: Clone emacs repo
-  ansible.builtin.git:
-    repo: "https://git.savannah.gnu.org/git/emacs.git"
-    dest: ~/src/emacs
-    version: emacs-30
-
-- name: Install emacs deps
-  ansible.builtin.apt:
-    pkg: emacs
-    update_cache: true
-    state: build-dep
-  become: true
-
-- name: Build emacs
+- name: Check emacs commit hash
   ansible.builtin.shell: |
-    ./autogen.sh
-    ./configure --with-tree-sitter --with-native-compilation --prefix=/usr
-    make -j$(nproc)
-  args:
-    chdir: ~/src/emacs
+    emacs --version 2>/dev/null | awk 'NR==2 {print $3}' || true
+  register: emacs_version
+  changed_when: false
+  failed_when: false
+
+- name: Set emacs commit
+  ansible.builtin.set_fact:
+    installed_emacs_commit: "{{ emacs_version.stdout | default('') }}"
 
 - name: Install emacs
-  ansible.builtin.command: make install
-  args:
-    chdir: "{{ ansible_env.HOME }}/src/emacs"
-  become: true
+  block:
+    - name: Remove emacs package
+      ansible.builtin.apt:
+        name: emacs
+        state: absent
+
+    - name: Create src directory
+      ansible.builtin.file:
+        path: ~/src
+        state: directory
+        mode: "0755"
+
+    - name: Clone tree-sitter repo
+      ansible.builtin.git:
+        repo: "https://github.com/tree-sitter/tree-sitter.git"
+        dest: ~/src/tree-sitter
+
+    - name: Build tree-sitter
+      ansible.builtin.command: make
+      args:
+        chdir: ~/src/tree-sitter
+
+    - name: Install tree-sitter
+      ansible.builtin.command: make install PREFIX=/usr
+      args:
+        chdir: "{{ ansible_env.HOME }}/src/tree-sitter"
+        become: true
+
+    - name: Clone emacs repo
+      ansible.builtin.git:
+        repo: "https://git.savannah.gnu.org/git/emacs.git"
+        dest: ~/src/emacs
+        version: expected_emacs_commit
+
+    - name: Install emacs deps
+      ansible.builtin.apt:
+        pkg: emacs
+        update_cache: true
+        state: build-dep
+      become: true
+
+    - name: Build emacs
+      ansible.builtin.shell: |
+        ./autogen.sh
+        ./configure --with-tree-sitter --with-native-compilation --prefix=/usr
+        make -j$(nproc)
+      args:
+        chdir: ~/src/emacs
+
+    - name: Install emacs files
+      ansible.builtin.command: make install
+      args:
+        chdir: "{{ ansible_env.HOME }}/src/emacs"
+      become: true
+  when: installed_emacs_commit != expected_emacs_commit
 
 - name: Create emacs directory
   ansible.builtin.file:
