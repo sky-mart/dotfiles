@@ -20,14 +20,18 @@
       ansible.builtin.copy:
         content: |
           [Unit]
-          Description=Auto connect to the jbl speark after unlock
+          Description=Run script on Plasma unlock
+          After=graphical-session.target
+          PartOf=graphical-session.target
 
           [Service]
+          Type=simple
           ExecStart=%h/.local/bin/auto-jbl.sh
           Restart=always
+          RestartSec=2
 
           [Install]
-          WantedBy=default.target
+          WantedBy=graphical-session.target
         dest: "~/.config/systemd/user/auto-jbl.service"
 
     - name: Enable the speaker autoconnection service to start on boot
