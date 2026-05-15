@@ -54,13 +54,15 @@
     state: present
   become: true
 
-- name: Create config directories
+- name: Create tmux config directory
   ansible.builtin.file:
-    path: ~/.config/{{ item }}
+    path: ~/.config/tmux
     state: directory
-  loop:
-    - tmux
-    - alacritty
+
+- name: Create tmux config directory
+  ansible.builtin.file:
+    path: ~/.config/alacritty/themes
+    state: directory
 
 - name: Install tmux config
   block:
@@ -80,6 +82,11 @@
 
 - name: Install alacritty config
   block:
+    - name: Copy alacritty theme
+      ansible.builtin.copy:
+        src: nord.toml
+        dest: ~/.config/alacritty/themes/nord.toml
+
     - name: Link alacritty config locally
       ansible.builtin.file:
         src: "{{ role_path }}/files/alacritty.toml"
