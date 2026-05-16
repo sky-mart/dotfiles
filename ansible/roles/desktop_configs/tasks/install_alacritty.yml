@@ -1,0 +1,107 @@
+# https://github.com/alacritty/alacritty/blob/v0.17/INSTALL.md#linux--windows--bsd
+
+- name: Remove apt alacritty
+  ansible.builtin.apt:
+    pkg:
+    - alacritty
+    state: absent
+  become: true
+
+- name: Remove previous install alacritty files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /usr/bin/alacritty
+    - /usr/share/pixmaps/Alacritty.svg
+    - /usr/share/man/man1/alacritty.1.gz
+    - /usr/share/man/man1/alacritty-msg.1.gz
+    - /usr/share/man/man5/alacritty.5.gz
+    - /usr/share/man/man5/alacritty-bindings.5.gz
+    - /usr/share/man/man7/alacritty-escapes.7.gz
+  become: true
+
+- name: Install alacritty dependencies
+  ansible.builtin.apt:
+    pkg:
+    - cmake
+    - g++
+    - pkg-config
+    - libfontconfig1-dev
+    - libxcb-xfixes0-dev
+    - libxkbcommon-dev
+    - python3
+    - scdoc
+    update_cache: true
+    state: present
+  become: true
+
+- name: Create src directory
+  ansible.builtin.file:
+    path: ~/src
+    state: directory
+    mode: "0755"
+
+- name: Clone alacritty repo
+  ansible.builtin.git:
+    repo: "https://github.com/alacritty/alacritty.git"
+    dest: ~/src/alacritty
+    version: "v{{ expected_alacritty_version }}"
+
+- name: Build alacritty
+  ansible.builtin.command: cargo build --release
+  args:
+    chdir: ~/src/alacritty
+
+- name: Install alacritty files
+  block:
+    - name: Install alacritty binary
+      ansible.builtin.copy:
+        src: "{{ repo }}/target/release/alacritty"
+        dest: /usr/bin/alacritty
+        remote_src: true
+        mode: 0755
+
+    - name: Install alacritty terminfo
+      ansible.builtin.command: tic -xe alacritty,alacritty-direct extra/alacritty.info
+      args:
+        chdir: "{{ repo }}"
+
+    - name: Copy alacritty logo
+      ansible.builtin.copy:
+        src: "{{ repo }}/extra/logo/alacritty-term.svg"
+        dest: /usr/share/pixmaps/Alacritty.svg
+        remote_src: true
+
+    - name: Install alacritty desktop entry
+      ansible.builtin.command: desktop-file-install extra/linux/Alacritty.desktop
+      args:
+        chdir: "{{ repo }}"
+
+    - name: Update desktop database
+      ansible.builtin.command: update-desktop-database
+
+    - name: Create man directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - /usr/local/share/man/man1
+        - /usr/local/share/man/man5
+        - /usr/local/share/man/man7
+
+    - name: Install man pages
+      ansible.builtin.shell: |
+        scdoc < extra/man/{{ item.0 }}.scd | gzip -c | sudo tee /usr/local/share/man/{{ item.1 }}/{{ item.0 }}.gz > /dev/null
+      args:
+        chdir: "{{ repo }}"
+      loop:
+        - [alacritty.1, man1]
+        - [alacritty-msg.1, man1]
+        - [alacritty.5, man5]
+        - [alacritty-bindings.5, man5]
+        - [alacritty-escapes.7, man7]
+  become: true
+  vars:
+    repo: "{{ ansible_env.HOME }}/src/alacritty"

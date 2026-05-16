@@ -1,5 +1,6 @@
 - hosts: all
   roles:
+    - dev
     - shell
     - desktop_notes
     - emacs
