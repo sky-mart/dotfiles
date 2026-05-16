@@ -6,6 +6,8 @@
     - zoxide
     - zsh
     - zsh-syntax-highlighting
+    - python3
+    - python3-pexpect
     update_cache: true
     state: present
   become: true
@@ -53,8 +55,14 @@
     dest: ~/.fzf
     depth: 1
 
-- name: Install fzf
-  ansible.builtin.command: ~/.fzf/install
+- name: Run interactive fzf installer
+  ansible.builtin.expect:
+    command: "{{ ansible_env.HOME }}/.fzf/install"
+    responses:
+      "enable fuzzy auto-completion": "y"
+      "enable key bindings": "y"
+      "update your shell configuration files": "n"
+    timeout: 300
 
 - name: Install fzf-zsh-plugin plugin
   ansible.builtin.git:
