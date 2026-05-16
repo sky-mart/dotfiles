@@ -6,9 +6,6 @@
     - zoxide
     - zsh
     - zsh-syntax-highlighting
-    # is installed from source
-    # git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
-    # - fzf
     update_cache: true
     state: present
   become: true
@@ -50,7 +47,14 @@
     depth: 1
     version: 0.8.0
 
-# also install the fzf binary
+- name: Clone fzf repo
+  ansible.builtin.git:
+    repo: "https://github.com/junegunn/fzf.git"
+    dest: ~/.fzf
+
+- name: Install fzf
+  ansible.builtin.command: ~/.fzf/install
+
 - name: Install fzf-zsh-plugin plugin
   ansible.builtin.git:
     repo: https://github.com/unixorn/fzf-zsh-plugin.git

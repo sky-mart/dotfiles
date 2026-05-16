@@ -120,3 +120,5 @@ alias em="emacsclient --tty"
 alias se="sudoedit"
 # smart cd command
 eval "$(zoxide init zsh)"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
