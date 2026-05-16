@@ -8,11 +8,21 @@
   ansible.builtin.set_fact:
     rustup_installed: "{{ rustup_check.rc == 0 }}"
 
-- name: Install rust tooling
-  when: not rustup_installed
-  ansible.builtin.shell: |
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+- name: Install rustup
+  block:
+    - name: Download rustup installer
+      ansible.builtin.shell: |
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o /tmp/rustup-init.sh
+        chmod +x /tmp/rustup-init.sh
+      args:
+        creates: /tmp/rustup-init.sh
 
-- name: Specify rust version
+    - name: Install Rust via rustup
+      ansible.builtin.command:
+        cmd: /tmp/rustup-init.sh -y
+      args:
+        creates: "{{ ansible_env.HOME }}/.cargo/bin/rustc"
+
+    - name: Specify rust version
+      ansible.builtin.command: rustup default stable
   when: not rustup_installed
-  ansible.builtin.command: rustup default stable
