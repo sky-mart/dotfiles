@@ -26,6 +26,7 @@
       ansible.builtin.git:
         repo: "https://github.com/tree-sitter/tree-sitter.git"
         dest: ~/src/tree-sitter
+        depth: 1
 
     - name: Build tree-sitter
       ansible.builtin.command: make
@@ -43,6 +44,7 @@
         repo: "https://git.savannah.gnu.org/git/emacs.git"
         dest: ~/src/emacs
         version: "{{ expected_emacs_commit }}"
+        depth: 1
 
     - name: Install emacs deps
       ansible.builtin.apt:

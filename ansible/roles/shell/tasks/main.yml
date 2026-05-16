@@ -51,6 +51,7 @@
   ansible.builtin.git:
     repo: "https://github.com/junegunn/fzf.git"
     dest: ~/.fzf
+    depth: 1
 
 - name: Install fzf
   ansible.builtin.command: ~/.fzf/install

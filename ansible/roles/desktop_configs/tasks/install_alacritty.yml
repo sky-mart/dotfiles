@@ -47,6 +47,7 @@
     repo: "https://github.com/alacritty/alacritty.git"
     dest: ~/src/alacritty
     version: "v{{ expected_alacritty_version }}"
+    depth: 1
 
 - name: Build alacritty
   ansible.builtin.command: cargo build --release
