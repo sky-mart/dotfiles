@@ -446,7 +446,7 @@
   (setq treesit-language-source-alist
         (append treesit-language-source-alist
                 '((nix "https://github.com/nix-community/tree-sitter-nix")))
-        (treesit-auto-langs '(python c cpp rust bash nix)))
+        treesit-auto-langs '(python c cpp rust bash nix))
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
