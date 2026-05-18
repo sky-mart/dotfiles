@@ -1,4 +1,10 @@
 - hosts: all
+  pre_tasks:
+    - name: Load vault variables
+      include_vars:
+        file: server_vault.yml
+      when: use_vault | default(false)
+
   roles:
     - docker
     - role: ftp_server

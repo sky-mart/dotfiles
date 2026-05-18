@@ -1,8 +1,8 @@
 - name: Ensure the server key is provided
   ansible.builtin.assert:
     that:
-      - ftp_server_key_path is defined
-      - ftp_server_key_path | length > 0
+      - ftp_server_key is defined
+      - ftp_server_key | length > 0
     fail_msg: "Provide the ftp server key"
 
 - name: Ensure the ftp password is provided
@@ -12,7 +12,7 @@
       - ftp_password | length > 0
     fail_msg: "Provide the ftp password"
 
-- name: Create deploy user
+- name: Create FTP user
   ansible.builtin.user:
     name: "{{ ftp_user }}"
     comment: FTP User
@@ -33,7 +33,7 @@
 
 - name: Copy the private key
   ansible.builtin.copy:
-    src: "{{ ftp_server_key_path }}"
+    content: "{{ ftp_server_key }}"
     dest: /etc/ssl/private/vsftpd.key
 
 - name: Copy the SSL certificate
