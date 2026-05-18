@@ -1,0 +1,56 @@
+- name: Ensure the server key is provided
+  ansible.builtin.assert:
+    that:
+      - ftp_server_key_path is defined
+      - ftp_server_key_path | length > 0
+    fail_msg: "Provide the ftp server key"
+
+- name: Ensure the ftp password is provided
+  ansible.builtin.assert:
+    that:
+      - ftp_password is defined
+      - ftp_password | length > 0
+    fail_msg: "Provide the ftp password"
+
+- name: Create deploy user
+  ansible.builtin.user:
+    name: "{{ ftp_user }}"
+    comment: FTP User
+    shell: /bin/bash
+    state: present
+    password: "{{ ftp_password | password_hash('sha512')}}"
+
+- name: Install vsftpd
+  ansible.builtin.apt:
+    pkg: vsftpd
+    update_cache: true
+    state: present
+
+- name: Copy the config
+  ansible.builtin.copy:
+    src: vsftpd.conf
+    dest: /etc/vsftpd.conf
+
+- name: Copy the private key
+  ansible.builtin.copy:
+    src: "{{ ftp_server_key_path }}"
+    dest: /etc/ssl/private/vsftpd.key
+
+- name: Copy the SSL certificate
+  ansible.builtin.copy:
+    src: vsftpd.pem
+    dest: /etc/ssl/private/vsftpd.pem
+
+- name: Add users to the userlist file
+  ansible.builtin.lineinfile:
+    path: /etc/vsftpd.userlist
+    create: true
+    line: "{{ ftp_user }}"
+
+- name: Enable vsftpd systemd service to start on boot
+  ansible.builtin.systemd:
+    name: vsftpd
+    enabled: true
+    state: restarted
+    daemon_reload: true
+    force: true
