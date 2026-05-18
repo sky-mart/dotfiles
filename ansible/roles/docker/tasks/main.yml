@@ -1,0 +1,76 @@
+- name: Check for docker
+  ansible.builtin.command: docker --version
+  register: docker_check
+  failed_when: false
+  changed_when: false
+
+- name: Set docker_installed fact
+  ansible.builtin.set_fact:
+    docker_installed: "{{ docker_check.rc == 0 }}"
+
+- name: Install docker
+  block:
+    - name: Install service utilities
+      ansible.builtin.apt:
+        pkg:
+          - curl
+          - ca-certificates
+        update_cache: true
+        state: present
+
+    - name: Create keyrings directory
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+
+    - name: Download the docker keyring
+      ansible.builtin.shell: |
+        curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+        chmod a+r /etc/apt/keyrings/docker.asc
+
+    - name: Register OS codename
+      ansible.builtin.shell: |
+        source /etc/os-release && echo "$VERSION_CODENAME"
+      args:
+        executable: /bin/bash
+      register: os_version_codename
+      failed_when: false
+      changed_when: false
+
+    - name: Register architecture
+      ansible.builtin.command: dpkg --print-architecture
+      register: dpkg_arch
+      failed_when: false
+      changed_when: false
+
+    - name: Add docker apt source
+      ansible.builtin.copy:
+        content: |
+          Types: deb
+          URIs: https://download.docker.com/linux/debian
+          Suites: {{ os_version_codename.stdout }}
+          Components: stable
+          Architectures: {{ dpkg_arch.stdout }}
+          Signed-By: /etc/apt/keyrings/docker.asc
+        dest: /etc/apt/sources.list.d/docker.sources
+
+    - name: Install docker packages
+      ansible.builtin.apt:
+        pkg:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        update_cache: true
+        state: present
+
+    - name: Add user to the group docker
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: true
+
+  become: true
+  when: not docker_installed
