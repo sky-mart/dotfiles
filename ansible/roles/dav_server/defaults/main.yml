@@ -1,0 +1,5 @@
+dav_server_project_path: "/home/vlad/projects/dav-notes"
+dav_service_name: "dav_notes"
+dav_server_key: ""
+dav_server_crt: ""
+dav_server_htpasswd: ""

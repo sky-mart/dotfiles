@@ -1,0 +1,89 @@
+- name: Install git
+  ansible.builtin.apt:
+    pkg: git
+    update_cache: true
+    state: present
+  become: true
+
+- name: Git checkout the config files
+  ansible.builtin.git:
+    repo: "https://github.com/sky-mart/dav-server.git"
+    dest: "{{ dav_server_project_path }}"
+
+- name: Copy credentials
+  ansible.builtin.copy:
+    content: "{{ item.content }}"
+    dest: "{{ dav_server_project_path }}/{{ item.dest }}"
+    force: no
+  loop:
+    - { content: "{{ dav_server_key }}", dest: "server.key" }
+    - { content: "{{ dav_server_crt }}", dest: "server.crt" }
+    - { content: "{{ dav_server_htpasswd }}", dest: ".htpasswd" }
+  no_log: true
+
+- name: Create data an backup directories
+  ansible.builtin.file:
+    path: "{{ dav_server_project_path }}/{{ item }}"
+    state: directory
+    mode: '0775'
+  loop:
+    - data
+    - backups
+
+- name: Copy the systemd unit file to the remote server
+  ansible.builtin.copy:
+    dest: "/etc/systemd/system/{{ dav_service_name }}.service"
+    content: |
+      [Unit]
+      Description={{ dav_service_name }} Service
+      Requires=docker.service
+      After=docker.service
+      After=network.target
+
+      [Service]
+      Type=oneshot
+      RemainAfterExit=yes
+      ExecStart=docker compose up -d
+      ExecStop=docker compose down
+      WorkingDirectory={{ dav_server_project_path }}
+      TimeoutStartSec=0
+
+      [Install]
+      WantedBy=multi-user.target
+      mode: '0644'
+  become: true
+
+- name: Reload systemd to pick up the new service unit file
+  ansible.builtin.systemd:
+    daemon_reload: yes
+  become: true
+
+- name: Enable the service to start on boot
+  ansible.builtin.systemd:
+    name: "{{ dav_service_name }}"
+    enabled: yes
+  become: true
+
+- name: Start the service
+  ansible.builtin.systemd:
+    name: "{{ dav_service_name }}"
+    state: started
+  become: true
+
+- name: Write the backup command into a script
+  ansible.builtin.copy:
+    dest: "/usr/bin/backup-notes.sh"
+    content: |
+      #!/usr/bin/env sh
+
+      tar cfzP {{ dav_server_project_path }}/backups/$(date +%Y-%m-%d).tar {{ dav_server_project_path }}/data
+    mode: '0755'
+  become: true
+
+- name: Setup backups
+  ansible.builtin.cron:
+    name: DAV notes backup
+    special_time: daily
+    job: "/usr/bin/backup-notes.sh"
+    user: root
+  become: true
