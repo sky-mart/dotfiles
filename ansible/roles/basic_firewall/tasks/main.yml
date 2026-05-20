@@ -1,0 +1,26 @@
+# everything requires sudo
+
+- name: Install ufw
+  ansible.builtin.apt:
+    pkg: ufw
+    update_cache: true
+    state: present
+
+- name: Allow SSH
+  community.general.ufw:
+    rule: allow
+    port: ssh
+    proto: tcp
+
+- name: Allow SMTP
+  community.general.ufw:
+    rule: allow
+    port: smtp
+    proto: tcp
+
+- name: Allow OpenVPN
+  community.general.ufw:
+    rule: allow
+    port: 1194
+    proto: udp
+    state: enabled

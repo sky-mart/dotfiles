@@ -1,3 +1,5 @@
+# everything requires sudo
+
 - name: Ensure the server key is provided
   ansible.builtin.assert:
     that:
@@ -54,3 +56,16 @@
     state: restarted
     daemon_reload: true
     force: true
+
+- name: Allow FTP
+  community.general.ufw:
+    rule: allow
+    port: ftp
+    proto: tcp
+
+- name: Allow vsftpd auxillary ports
+  community.general.ufw:
+    rule: allow
+    port: 40000:40100
+    proto: tcp
+    state: enabled

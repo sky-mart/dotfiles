@@ -87,3 +87,14 @@
     job: "/usr/bin/backup-notes.sh"
     user: root
   become: true
+
+- name: Allow davfs service ports
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+    state: enabled
+  loop:
+    - 1080
+    - 1443
+  become: true

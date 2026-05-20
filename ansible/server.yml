@@ -6,6 +6,9 @@
       when: use_vault | default(false)
 
   roles:
+    - shell
+    - role: basic_firewall
+      become: true
     - docker
     - role: ftp_server
       become: true
