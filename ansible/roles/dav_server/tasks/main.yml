@@ -50,7 +50,7 @@
 
       [Install]
       WantedBy=multi-user.target
-      mode: '0644'
+    mode: '0644'
   become: true
 
 - name: Reload systemd to pick up the new service unit file

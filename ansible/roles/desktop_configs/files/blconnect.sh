@@ -10,7 +10,7 @@ case $1 in
         ;;
 
     air)
-        mac_to_connectE0:EB:40:28:C8:9C
+        mac_to_connect=E0:EB:40:28:C8:9C
         ;;
 
     *)
