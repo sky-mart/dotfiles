@@ -445,7 +445,13 @@
   :config
   (setq treesit-language-source-alist
         (append treesit-language-source-alist
-                '((nix "https://github.com/nix-community/tree-sitter-nix")))
+                ;; Pin grammars to revisions that emit grammar ABI <= 14, the
+                ;; max this Emacs (linked against libtree-sitter 0.22) can load.
+                ;; Without a pinned revision a manual
+                ;; `treesit-install-language-grammar' clones master, which now
+                ;; emits ABI 15 and fails with a version mismatch.
+                '((nix "https://github.com/nix-community/tree-sitter-nix")
+                  (python "https://github.com/tree-sitter/tree-sitter-python" "v0.23.6")))
         treesit-auto-langs '(python c cpp rust bash nix))
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
