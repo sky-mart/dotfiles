@@ -122,3 +122,5 @@ alias se="sudoedit"
 eval "$(zoxide init zsh)"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+[ -f ~/.tfh/shell.sh ] && source ~/.tfh/shell.sh
