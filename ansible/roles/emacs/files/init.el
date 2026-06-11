@@ -352,35 +352,36 @@
 ;; Project management
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(use-package projectile
-  :diminish projectile-mode
+(defun mart/project-root ()
+  "Return the current project root directory, or nil if not in a project."
+  (when-let ((proj (project-current)))
+    (project-root proj)))
+
+(use-package project
+  :ensure nil
   :custom
-  (projectile-completion-system 'default)
-  (projectile-compile-use-comint-mode t)
-  (projectile-ignored-project-function
-   (lambda (project-root)
-     (or (string-search ".cache/bazel" project-root)
-         (string-search ".rustup" project-root))))
-  (projectile-switch-project-action #'magit-status)
-
+  ;; Switching to a project opens its magit status (was
+  ;; projectile-switch-project-action).
+  (project-switch-commands #'magit-project-status)
   :bind-keymap
-  ("C-c p" . projectile-command-map)
+  ("C-c p" . project-prefix-map)
   :bind
-  ("M-r" . projectile-ripgrep)
-
+  ;; Search the current project (was projectile-ripgrep).
+  ("M-r" . consult-ripgrep)
   :config
-  (add-to-list 'projectile-globally-ignored-directories ".cache")
+  ;; Pre-populate the known-projects list (was projectile-project-search-path).
   (when (file-directory-p "~/projects/code")
-    (setq projectile-project-search-path '("~/projects/code"))))
+    (project-remember-projects-under "~/projects/code" t)))
 
-;; Projectile integration
-(use-package consult-projectile
-  :after (consult projectile)
+;; project.el integration with consult
+(use-package consult-project-extra
+  :after (consult project)
   :bind
-  (("M-o" . consult-projectile-find-file)))
+  (("M-o" . consult-project-extra-find)))
 
 (use-package dashboard
   :config
+  (setq dashboard-projects-backend 'project-el)
   (setq dashboard-items '((projects . 5)
                           (recents  . 5)))
   (dashboard-setup-startup-hook))
@@ -483,7 +484,7 @@
   ;; Turn on global bindings for setting breakpoints with mouse
   ;; (dape-breakpoint-global-mode +1)
   (dape-buffer-window-arrangement 'right)
-  (dape-cwd-function #'projectile-project-root)
+  (dape-cwd-function #'mart/project-root)
 
   ;; The approach with the start- and stopped- hooks doesn't work
   ;; The stopped hook is called righ away
