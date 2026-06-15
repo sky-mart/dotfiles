@@ -22,7 +22,9 @@ TERM = "xterm-256color"
 [keyboard]
 bindings = [
   { key = "C", mods = "Control|Shift", action = "Copy" },
+  { key = "С", mods = "Control|Shift", action = "Copy" },
   { key = "V", mods = "Control", action = "Paste" },
+  { key = "М", mods = "Control", action = "Paste" },
 ]
 
 [mouse]
