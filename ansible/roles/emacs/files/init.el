@@ -62,7 +62,11 @@
 ;; Highlight the current line
 (global-hl-line-mode 1)
 
-;; auto revert
+;; Poll for file changes so note buffers notice updates from other PCs on davfs.
+(setq auto-revert-interval 2
+      auto-revert-verbose nil
+      auto-revert-use-notify nil
+      global-auto-revert-non-file-buffers t)
 (global-auto-revert-mode 1)
 
 ;; Never use tabs, use spaces instead.
@@ -664,6 +668,21 @@
       org-agenda-files '("~/notes") ;; And all of those files should be in included agenda.
       org-todo-keywords '((sequence "TODO(1)" "IN-PROGRESS(2)" "WAITING(4)" "SOMEDAY(5)" "|" "DONE(3)" "CANCELED(6)"))
       )
+
+(defun mart/notes-file-p (file-name)
+  (when file-name
+    (file-in-directory-p (expand-file-name file-name)
+                         (file-name-as-directory
+                          (expand-file-name org-directory)))))
+
+(defun mart/notes-stale-save-guard ()
+  (when (and (mart/notes-file-p buffer-file-name)
+             (file-exists-p buffer-file-name)
+             (not (verify-visited-file-modtime (current-buffer))))
+    (user-error
+     "Refusing to save stale notes buffer; revert the buffer first")))
+
+(add-hook 'before-save-hook #'mart/notes-stale-save-guard)
 
 (defun open-note (exact-file)
   (find-file (file-name-concat org-directory exact-file)))
