@@ -196,16 +196,23 @@
   :config
   (move-text-default-bindings))
 
+(require 'cl-lib)
+
+(defmacro mart/defhydra-bilingual (name body docstring &rest heads)
+  "Define hydra NAME with Latin and Cyrillic bindings for each head in HEADS."
+  `(defhydra ,name ,body ,docstring
+     ,@(cl-mapcan
+        (pcase-lambda (`(,latin ,cyrillic ,cmd ,hint))
+          `((,latin ,cmd ,hint)
+            (,cyrillic ,cmd ,hint)))
+        heads)))
+
 (use-package hydra
   :config
-  (defhydra case-launcher (:color blue)
-    "Change case"
-    ("u" upcase-dwim "Upper case")
-    ("г" upcase-dwim "Upper case") ;; cyrillic
-    ("l" downcase-dwim "Lower case")
-    ("д" downcase-dwim "Lower case") ;; cyrillic
-    ("c" capitalize-dwim "Capitalize")
-    ("с" capitalize-dwim "Capitalize")) ;; cyrillic
+  (mart/defhydra-bilingual case-launcher (:color blue) "Change case"
+    ("u" "г" upcase-dwim "Upper case")
+    ("l" "д" downcase-dwim "Lower case")
+    ("c" "с" capitalize-dwim "Capitalize"))
   (global-set-key (kbd "M-u") #'case-launcher/body))
 
 (global-set-key (kbd "M-l") 'duplicate-line)
@@ -692,28 +699,17 @@
   (org-meta-return))
 
 (with-eval-after-load 'hydra
-  (defhydra notes-launcher (:color blue)
-    "Open notes"
-    ("d" (open-note "Diary.org") "Diary")
-    ("в" (open-note "Diary.org") "Diary") ;; cyrillic
-    ("i" (open-note "Inbox.org") "Inbox")
-    ("ш" (open-note "Inbox.org") "Inbox") ;; cyrillic
-    ("t" (open-note "Texts.org") "Texts")
-    ("е" (open-note "Texts.org") "Texts") ;; cyrillic
-    ("k" (open-note "KB.org") "KB")
-    ("л" (open-note "KB.org") "KB") ;; cyrillic
-    ("j" (open-note "Projects.org") "Projects")
-    ("о" (open-note "Projects.org") "Projects") ;; cyrillic
-    ("p" (open-note "Plans.org") "Plans")
-    ("з" (open-note "Plans.org") "Plans") ;; cyrillic
-    ("s" (open-note "Stats.org") "Stats")
-    ("ы" (open-note "Stats.org") "Stats") ;; cyrillic
-    ("r" (open-note "Archive.org") "Archive")
-    ("к" (open-note "Archive.org") "Archive") ;; cyrillic
-    ("a" (org-agenda-list) "Agenda")
-    ("ф" (org-agenda-list) "Agenda") ;; cyrillic
-    ("n" (mart/new-inbox-entry) "New inbox")
-    ("т" (mart/new-inbox-entry) "New inbox")) ;; cyrillic
+  (mart/defhydra-bilingual notes-launcher (:color blue) "Open notes"
+    ("d" "в" (open-note "Diary.org") "Diary")
+    ("i" "ш" (open-note "Inbox.org") "Inbox")
+    ("t" "е" (open-note "Texts.org") "Texts")
+    ("k" "л" (open-note "KB.org") "KB")
+    ("j" "о" (open-note "Projects.org") "Projects")
+    ("p" "з" (open-note "Plans.org") "Plans")
+    ("s" "ы" (open-note "Stats.org") "Stats")
+    ("r" "к" (open-note "Archive.org") "Archive")
+    ("a" "ф" (org-agenda-list) "Agenda")
+    ("n" "т" (mart/new-inbox-entry) "New inbox"))
   (global-set-key (kbd "C-`") #'notes-launcher/body))
 
 ;; requires pandoc
