@@ -196,19 +196,17 @@
   :config
   (move-text-default-bindings))
 
-(use-package hydra)
-
-(global-set-key
- (kbd "M-u")
- (defhydra case-launcher (:color blue)
-   "Change case"
-   ("u" upcase-dwim "Upper case")
-   ("г" upcase-dwim "Upper case") ;; cyrillic
-   ("l" downcase-dwim "Lower case")
-   ("д" downcase-dwim "Lower case") ;; cyrillic
-   ("c" capitalize-dwim "Capitalize")
-   ("с" capitalize-dwim "Capitalize") ;; cyrillic
-   ))
+(use-package hydra
+  :config
+  (defhydra case-launcher (:color blue)
+    "Change case"
+    ("u" upcase-dwim "Upper case")
+    ("г" upcase-dwim "Upper case") ;; cyrillic
+    ("l" downcase-dwim "Lower case")
+    ("д" downcase-dwim "Lower case") ;; cyrillic
+    ("c" capitalize-dwim "Capitalize")
+    ("с" capitalize-dwim "Capitalize")) ;; cyrillic
+  (global-set-key (kbd "M-u") #'case-launcher/body))
 
 (global-set-key (kbd "M-l") 'duplicate-line)
 (setq duplicate-line-final-position -1) ; move cursor to the last new line
@@ -379,7 +377,6 @@
 
 ;; project.el integration with consult
 (use-package consult-project-extra
-  :after (consult project)
   :bind
   (("M-o" . consult-project-extra-find)))
 
@@ -480,10 +477,6 @@
   (bash-ts-mode . eglot-ensure))
 
 (use-package dape
-  :hook
-  (kill-emacs . dape-breakpoint-save) ;; Save breakpoints on quit
-  (after-init . dape-breakpoint-load) ;; Load breakpoints on startup
-
   :custom
   ;; Turn on global bindings for setting breakpoints with mouse
   ;; (dape-breakpoint-global-mode +1)
@@ -502,6 +495,9 @@
    ("S-<f11>" . dape-step-out))
 
   :config
+  ;; Register breakpoint persistence only when dape is available.
+  (add-hook 'kill-emacs-hook #'dape-breakpoint-save)
+  (add-hook 'after-init-hook #'dape-breakpoint-load)
   (add-to-list
    'dape-configs
    ;; openocd needs to be launched first
@@ -655,6 +651,8 @@
 
 ;; Some basic Org defaults
 
+(require 'org)
+
 (add-to-list 'org-modules 'org-habit t)
 (setq org-habit-show-all-today t
       org-startup-indented t         ;; Visually indent sections. This looks better for smaller files.
@@ -693,31 +691,30 @@
   (end-of-buffer)
   (org-meta-return))
 
-(global-set-key
- (kbd "C-`")
- (defhydra notes-launcher (:color blue)
-   "Open notes"
-   ("d" (open-note "Diary.org") "Diary")
-   ("в" (open-note "Diary.org") "Diary") ;; cyrillic
-   ("i" (open-note "Inbox.org") "Inbox")
-   ("ш" (open-note "Inbox.org") "Inbox") ;; cyrillic
-   ("t" (open-note "Texts.org") "Texts")
-   ("е" (open-note "Texts.org") "Texts") ;; cyrillic
-   ("k" (open-note "KB.org") "KB")
-   ("л" (open-note "KB.org") "KB") ;; cyrillic
-   ("j" (open-note "Projects.org") "Projects")
-   ("о" (open-note "Projects.org") "Projects") ;; cyrillic
-   ("p" (open-note "Plans.org") "Plans")
-   ("з" (open-note "Plans.org") "Plans") ;; cyrillic
-   ("s" (open-note "Stats.org") "Stats")
-   ("ы" (open-note "Stats.org") "Stats") ;; cyrillic
-   ("r" (open-note "Archive.org") "Archive")
-   ("к" (open-note "Archive.org") "Archive") ;; cyrillic
-   ("a" (org-agenda-list) "Agenda")
-   ("ф" (org-agenda-list) "Agenda") ;; cyrillic
-   ("n" (mart/new-inbox-entry) "New inbox")
-   ("т" (mart/new-inbox-entry) "New inbox") ;; cyrillic
-))
+(with-eval-after-load 'hydra
+  (defhydra notes-launcher (:color blue)
+    "Open notes"
+    ("d" (open-note "Diary.org") "Diary")
+    ("в" (open-note "Diary.org") "Diary") ;; cyrillic
+    ("i" (open-note "Inbox.org") "Inbox")
+    ("ш" (open-note "Inbox.org") "Inbox") ;; cyrillic
+    ("t" (open-note "Texts.org") "Texts")
+    ("е" (open-note "Texts.org") "Texts") ;; cyrillic
+    ("k" (open-note "KB.org") "KB")
+    ("л" (open-note "KB.org") "KB") ;; cyrillic
+    ("j" (open-note "Projects.org") "Projects")
+    ("о" (open-note "Projects.org") "Projects") ;; cyrillic
+    ("p" (open-note "Plans.org") "Plans")
+    ("з" (open-note "Plans.org") "Plans") ;; cyrillic
+    ("s" (open-note "Stats.org") "Stats")
+    ("ы" (open-note "Stats.org") "Stats") ;; cyrillic
+    ("r" (open-note "Archive.org") "Archive")
+    ("к" (open-note "Archive.org") "Archive") ;; cyrillic
+    ("a" (org-agenda-list) "Agenda")
+    ("ф" (org-agenda-list) "Agenda") ;; cyrillic
+    ("n" (mart/new-inbox-entry) "New inbox")
+    ("т" (mart/new-inbox-entry) "New inbox")) ;; cyrillic
+  (global-set-key (kbd "C-`") #'notes-launcher/body))
 
 ;; requires pandoc
 (use-package markdown-mode
