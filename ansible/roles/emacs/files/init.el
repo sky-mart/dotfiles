@@ -376,11 +376,7 @@
   ("C-c p" . project-prefix-map)
   :bind
   ;; Search the current project (was projectile-ripgrep).
-  ("M-r" . consult-ripgrep)
-  :config
-  ;; Pre-populate the known-projects list (was projectile-project-search-path).
-  (when (file-directory-p "~/projects/code")
-    (project-remember-projects-under "~/projects/code" t)))
+  ("M-r" . consult-ripgrep))
 
 ;; project.el integration with consult
 (use-package consult-project-extra
