@@ -465,12 +465,16 @@
                '(python-ts-mode . ("ty" "server")))
   (add-to-list 'eglot-server-programs
                '(bash-ts-mode . ("bash-language-server" "start")))
+  ;; install nix language server
+  ;; nix profile install nixpkgs#nil
+  (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
   :hook
   ;; eglot in rust is managed by rustic-mode
   (c-ts-mode . eglot-ensure)
   (c++-ts-mode . eglot-ensure)
   (python-ts-mode . eglot-ensure)
-  (bash-ts-mode . eglot-ensure))
+  (bash-ts-mode . eglot-ensure)
+  (nix-ts-mode . eglot-ensure))
 
 (use-package dape
   :custom
