@@ -56,7 +56,7 @@
     - name: Build emacs
       ansible.builtin.shell: |
         ./autogen.sh
-        ./configure --with-tree-sitter --with-native-compilation --prefix=/usr
+        ./configure --with-tree-sitter --with-native-compilation=aot --with-pgtk --prefix=/usr
         make -j$(nproc)
       args:
         chdir: ~/src/emacs
