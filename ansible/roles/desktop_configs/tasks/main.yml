@@ -47,6 +47,7 @@
   ansible.builtin.apt:
     pkg:
     - fonts-firacode
+    - rofi
     - tmux
     - vim
     - desktop-file-utils
@@ -75,9 +76,14 @@
     path: ~/.config/tmux
     state: directory
 
-- name: Create tmux config directory
+- name: Create alacritty config directory
   ansible.builtin.file:
     path: ~/.config/alacritty/themes
+    state: directory
+
+- name: Create rofi config directory
+  ansible.builtin.file:
+    path: ~/.config/rofi
     state: directory
 
 - name: Install tmux config
@@ -115,6 +121,28 @@
       ansible.builtin.copy:
         src: alacritty.toml
         dest: ~/.config/alacritty/alacritty.toml
+      when: (ansible_connection | default('ssh')) != "local"
+
+- name: Install rofi config
+  block:
+    - name: Link rofi config locally
+      ansible.builtin.file:
+        src: "{{ role_path }}/files/{{ item.src }}"
+        path: "{{ ansible_env.HOME }}/.config/rofi/{{ item.dest }}"
+        state: link
+        force: true
+      loop:
+        - { src: rofi.rasi, dest: config.rasi }
+        - { src: nord.rasi, dest: nord.rasi }
+      when: (ansible_connection | default("ssh")) == "local"
+
+    - name: Copy rofi config remotely
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "~/.config/rofi/{{ item.dest }}"
+      loop:
+        - { src: rofi.rasi, dest: config.rasi }
+        - { src: nord.rasi, dest: nord.rasi }
       when: (ansible_connection | default('ssh')) != "local"
 
 - name: Install KDE shortcuts
