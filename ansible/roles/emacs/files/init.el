@@ -652,6 +652,7 @@
 ;; Some basic Org defaults
 
 (require 'org)
+(require 'org-crypt)
 
 (add-to-list 'org-modules 'org-habit t)
 (setq org-habit-show-all-today t
@@ -664,8 +665,12 @@
       org-startup-folded t           ;; Collapse all headlines
       org-directory "~/notes"
       org-agenda-files '("~/notes") ;; And all of those files should be in included agenda.
+      org-crypt-key nil              ;; Use symmetric encryption unless CRYPTKEY is set.
+      org-crypt-disable-auto-save 'encrypt
       org-todo-keywords '((sequence "TODO(1)" "IN-PROGRESS(2)" "WAITING(4)" "SOMEDAY(5)" "|" "DONE(3)" "CANCELED(6)"))
       )
+(org-crypt-use-before-save-magic)
+(add-to-list 'org-tags-exclude-from-inheritance "crypt")
 
 (defun mart/notes-file-p (file-name)
   (when file-name
