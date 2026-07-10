@@ -672,6 +672,26 @@
 (org-crypt-use-before-save-magic)
 (add-to-list 'org-tags-exclude-from-inheritance "crypt")
 
+(defvar mart/org-gcal-calendar-id "primary"
+  "Google Calendar id synced by org-gcal.")
+
+(use-package org-gcal
+  :after org
+  :commands (org-gcal-delete-at-point
+             org-gcal-fetch
+             org-gcal-post-at-point
+             org-gcal-sync)
+  :config
+  ;; If shell env vars get annoying, auth-source with ~/.authinfo.gpg is a good next step.
+  (setq mart/org-gcal-calendar-id (or (getenv "ORG_GCAL_CALENDAR_ID")
+                                      mart/org-gcal-calendar-id)
+        org-gcal-client-id (or (getenv "ORG_GCAL_CLIENT_ID")
+                               org-gcal-client-id)
+        org-gcal-client-secret (or (getenv "ORG_GCAL_CLIENT_SECRET")
+                                   org-gcal-client-secret)
+        org-gcal-file-alist `((,mart/org-gcal-calendar-id
+                               . ,(file-name-concat org-directory "Calendar.org")))))
+
 (defun mart/notes-file-p (file-name)
   (when file-name
     (file-in-directory-p (expand-file-name file-name)
@@ -707,6 +727,8 @@
     ("s" "ы" (open-note "Stats.org") "Stats")
     ("r" "к" (open-note "Archive.org") "Archive")
     ("a" "ф" (org-agenda-list) "Agenda")
+    ("g" "п" (org-gcal-sync) "Sync Google Calendar")
+    ("G" "П" (org-gcal-post-at-point) "Post entry to Google Calendar")
     ("n" "т" (mart/new-inbox-entry) "New inbox"))
   (global-set-key (kbd "C-`") #'notes-launcher/body))
 
