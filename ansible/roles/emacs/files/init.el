@@ -253,6 +253,11 @@
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
   ;; (load-theme 'doom-outrun-electric t)
   (load-theme 'doom-nord t)
+  ;; Emacs 31's Gnus defaults and doom-nord create an inheritance cycle here.
+  (face-spec-set
+   'gnus-group-news-low
+   '((t (:inherit gnus-group-mail-1 :foreground "#4C566A" :weight bold)))
+   'face-override-spec)
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
   ;; Corrects (and improves) org-mode's native fontification.
