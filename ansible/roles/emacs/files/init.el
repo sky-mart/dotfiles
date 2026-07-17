@@ -726,6 +726,7 @@
     ("d" "в" (open-note "Diary.org") "Diary")
     ("i" "ш" (open-note "Inbox.org") "Inbox")
     ("t" "е" (open-note "Texts.org") "Texts")
+    ("w" "ц" (open-note "TFH.org") "TFH")
     ("k" "л" (open-note "KB.org") "KB")
     ("j" "о" (open-note "Projects.org") "Projects")
     ("p" "з" (open-note "Plans.org") "Plans")
