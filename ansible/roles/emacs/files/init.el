@@ -744,16 +744,18 @@
 
 ;; requires pandoc
 (use-package markdown-mode
-  :ensure t
   :mode ("README\\.md\\'" . gfm-mode)
   :init (setq markdown-command "pandoc"))
 
 (use-package yaml-mode)
 
-(use-package plantuml-mode
-  :config
-  (setq plantuml-jar-path "/home/vlad/.local/bin/plantuml-1.2023.5.jar")
-  (setq plantuml-default-exec-mode 'jar))
+;; sudo npm install -g @mermaid-js/mermaid-cli
+;; echo { "executablePath": "/usr/bin/chromium" } > ~/.config/mermaid/puppeteer.json
+(use-package mermaid-mode
+  :mode "\\.mmd\\'")
+
+;; sudo apt install texlive-latex-extra
+(use-package auctex)
 
 ;; TFH specific
 (if (file-exists-p "~/.tfh/emacs.el")
