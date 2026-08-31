@@ -24,6 +24,7 @@ bindings = [
   { key = "С", mods = "Control|Shift", action = "Copy" },
   { key = "V", mods = "Control", action = "Paste" },
   { key = "М", mods = "Control", action = "Paste" },
+  { key = "M", mods = "Alt", chars = "tmux new\r" },
 ]
 
 [mouse]
