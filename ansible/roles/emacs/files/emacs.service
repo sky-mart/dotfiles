@@ -1,7 +1,5 @@
 [Unit]
 Description=Emacs server
-After=plasma-workspace.target
-Wants=plasma-workspace.target
 
 [Service]
 ExecStart=/usr/bin/emacs --fg-daemon
@@ -9,4 +7,4 @@ ExecStop=/usr/bin/emacsclient --eval "(kill-emacs)"
 Restart=on-failure
 
 [Install]
-WantedBy=plasma-workspace.target
+WantedBy=default.target

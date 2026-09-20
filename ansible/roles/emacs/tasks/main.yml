@@ -101,7 +101,12 @@
     src: emacs.service
     dest: "~/.config/systemd/user/emacs.service"
 
-- name: Enable emacs systemd service to start on boot
+- name: Remove obsolete Plasma-specific Emacs enablement
+  ansible.builtin.file:
+    path: ~/.config/systemd/user/plasma-workspace.target.wants/emacs.service
+    state: absent
+
+- name: Enable emacs systemd service for user login
   ansible.builtin.systemd:
     name: emacs.service
     scope: user

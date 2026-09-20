@@ -47,10 +47,21 @@
   ansible.builtin.apt:
     pkg:
     - fonts-firacode
+    - brightnessctl
+    - dunst
+    - flameshot
+    - i3lock
+    - i3status
+    - i3-wm
+    - picom
+    - playerctl
+    - pulseaudio-utils
     - rofi
     - tmux
     - vim
     - desktop-file-utils
+    - x11-xserver-utils
+    - xss-lock
     update_cache: true
     state: present
   become: true
@@ -84,6 +95,11 @@
 - name: Create rofi config directory
   ansible.builtin.file:
     path: ~/.config/rofi
+    state: directory
+
+- name: Create i3 config directory
+  ansible.builtin.file:
+    path: ~/.config/i3
     state: directory
 
 - name: Install tmux config
@@ -143,6 +159,22 @@
       loop:
         - { src: rofi.rasi, dest: config.rasi }
         - { src: nord.rasi, dest: nord.rasi }
+      when: (ansible_connection | default('ssh')) != "local"
+
+- name: Install i3 config
+  block:
+    - name: Link i3 config locally
+      ansible.builtin.file:
+        src: "{{ role_path }}/files/i3.config"
+        path: "{{ ansible_env.HOME }}/.config/i3/config"
+        state: link
+        force: true
+      when: (ansible_connection | default("ssh")) == "local"
+
+    - name: Copy i3 config remotely
+      ansible.builtin.copy:
+        src: i3.config
+        dest: ~/.config/i3/config
       when: (ansible_connection | default('ssh')) != "local"
 
 - name: Install KDE shortcuts
