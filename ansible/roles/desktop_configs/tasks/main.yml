@@ -48,11 +48,15 @@
     pkg:
     - fonts-firacode
     - brightnessctl
+    - bluez
     - dunst
     - flameshot
+    - gcc
+    - i3blocks
     - i3lock
-    - i3status
     - i3-wm
+    - libx11-dev
+    - network-manager
     - picom
     - playerctl
     - pulseaudio-utils
@@ -100,6 +104,11 @@
 - name: Create i3 config directory
   ansible.builtin.file:
     path: ~/.config/i3
+    state: directory
+
+- name: Create i3blocks config directory
+  ansible.builtin.file:
+    path: ~/.config/i3blocks
     state: directory
 
 - name: Install tmux config
@@ -176,6 +185,28 @@
         src: i3.config
         dest: ~/.config/i3/config
       when: (ansible_connection | default('ssh')) != "local"
+
+- name: Install i3blocks config
+  block:
+    - name: Link i3blocks config locally
+      ansible.builtin.file:
+        src: "{{ role_path }}/files/i3blocks.conf"
+        path: "{{ ansible_env.HOME }}/.config/i3blocks/config"
+        state: link
+        force: true
+      when: (ansible_connection | default("ssh")) == "local"
+
+    - name: Copy i3blocks config remotely
+      ansible.builtin.copy:
+        src: i3blocks.conf
+        dest: ~/.config/i3blocks/config
+      when: (ansible_connection | default('ssh')) != "local"
+
+- name: Compile the XKB group query helper
+  ansible.builtin.command:
+    cmd: gcc {{ role_path }}/files/xkb-group.c -o {{ ansible_env.HOME }}/.local/bin/xkb-group -lX11
+  changed_when: false
+  when: (home_pc | default(false)) == true
 
 - name: Install KDE shortcuts
   ansible.builtin.copy:
