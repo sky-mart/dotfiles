@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-OPTIONS="grp:alt_shift_toggle,ctrl:swapcaps"
+OPTIONS="grp:alt_space_toggle,ctrl:swapcaps"
 
 usage() {
     echo "Use: init | eng | english | ger | german"

@@ -7,7 +7,10 @@ history = 10000
 
 [font]
 normal = { family = "Fira Code", style = "Regular" }
-size = 11
+size = 9
+
+[window]
+padding = { x = 10, y = 10 }
 
 [selection]
 save_to_clipboard = true
