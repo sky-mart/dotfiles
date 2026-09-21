@@ -241,6 +241,23 @@
         dest: ~/.config/i3blocks/config
       when: (ansible_connection | default('ssh')) != "local"
 
+- name: Install i3blocks volume script
+  block:
+    - name: Link i3blocks volume script locally
+      ansible.builtin.file:
+        src: "{{ role_path }}/files/i3blocks-volume.sh"
+        path: "{{ ansible_env.HOME }}/.local/bin/i3blocks-volume.sh"
+        state: link
+        force: true
+      when: (ansible_connection | default("ssh")) == "local"
+
+    - name: Copy i3blocks volume script remotely
+      ansible.builtin.copy:
+        src: i3blocks-volume.sh
+        dest: ~/.local/bin/i3blocks-volume.sh
+        mode: 0755
+      when: (ansible_connection | default('ssh')) != "local"
+
 - name: Compile the XKB group query helper
   ansible.builtin.command:
     cmd: gcc {{ role_path }}/files/xkb-group.c -o {{ ansible_env.HOME }}/.local/bin/xkb-group -lX11
