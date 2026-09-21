@@ -12,6 +12,7 @@
 ;; (tooltip-mode -1)    ; Disable tooltips
 (set-fringe-mode 10) ; Give some breathing room
 (menu-bar-mode -1)   ; Disable the menubar
+(add-to-list 'default-frame-alist '(internal-border-width . 10))
 
 (set-face-attribute 'default nil :font "Fira Code")
 (set-face-attribute 'default nil :height 110)
