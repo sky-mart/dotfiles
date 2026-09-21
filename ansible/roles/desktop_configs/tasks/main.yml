@@ -53,7 +53,6 @@
     - flameshot
     - gcc
     - i3blocks
-    - i3lock
     - i3-wm
     - libx11-dev
     - network-manager
@@ -86,6 +85,22 @@
   ansible.builtin.include_tasks:
     file: install_alacritty.yml
 
+- name: Check i3lock version
+  ansible.builtin.shell: |
+    i3lock --version | awk '{print $2}' || true
+  register: i3lock_version
+  changed_when: false
+  failed_when: false
+
+- name: Set i3lock version fact
+  ansible.builtin.set_fact:
+    installed_i3lock_version: "{{ i3lock_version.stdout | default('') }}"
+
+- name: Install i3lock-color
+  when: installed_i3lock_version != expected_i3lock_color_version
+  ansible.builtin.include_tasks:
+    file: install_i3lock_color.yml
+
 - name: Create tmux config directory
   ansible.builtin.file:
     path: ~/.config/tmux
@@ -110,6 +125,29 @@
   ansible.builtin.file:
     path: ~/.config/i3blocks
     state: directory
+
+- name: Create the user executables directory
+  ansible.builtin.file:
+    path: ~/.local/bin
+    state: directory
+    mode: "0755"
+
+- name: Install lock screen script
+  block:
+    - name: Link lock screen script locally
+      ansible.builtin.file:
+        src: "{{ role_path }}/files/lock.sh"
+        path: "{{ ansible_env.HOME }}/.local/bin/lock.sh"
+        state: link
+        force: true
+      when: (ansible_connection | default("ssh")) == "local"
+
+    - name: Copy lock screen script remotely
+      ansible.builtin.copy:
+        src: lock.sh
+        dest: ~/.local/bin/lock.sh
+        mode: 0755
+      when: (ansible_connection | default('ssh')) != "local"
 
 - name: Install tmux config
   block:

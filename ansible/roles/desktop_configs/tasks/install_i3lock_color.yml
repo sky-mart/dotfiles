@@ -1,0 +1,59 @@
+# https://github.com/Raymo111/i3lock-color#dependencies
+
+- name: Remove apt i3lock
+  ansible.builtin.apt:
+    pkg:
+    - i3lock
+    state: absent
+  become: true
+
+- name: Install i3lock-color dependencies
+  ansible.builtin.apt:
+    pkg:
+    - autoconf
+    - automake
+    - make
+    - pkg-config
+    - libpam0g-dev
+    - libcairo2-dev
+    - libfontconfig1-dev
+    - libxcb-composite0-dev
+    - libev-dev
+    - libx11-xcb-dev
+    - libxcb-xkb-dev
+    - libxcb-xinerama0-dev
+    - libxcb-randr0-dev
+    - libxcb-image0-dev
+    - libxcb-util0-dev
+    - libxcb-xrm-dev
+    - libxkbcommon-dev
+    - libxkbcommon-x11-dev
+    - libjpeg-dev
+    - libgif-dev
+    update_cache: true
+    state: present
+  become: true
+
+- name: Create src directory
+  ansible.builtin.file:
+    path: ~/src
+    state: directory
+    mode: "0755"
+
+- name: Clone i3lock-color repo
+  ansible.builtin.git:
+    repo: "https://github.com/Raymo111/i3lock-color.git"
+    dest: "{{ ansible_env.HOME }}/src/i3lock-color"
+    version: "{{ expected_i3lock_color_version }}"
+    depth: 1
+
+- name: Build i3lock-color
+  ansible.builtin.command: ./build.sh
+  args:
+    chdir: "{{ ansible_env.HOME }}/src/i3lock-color"
+
+- name: Install i3lock-color binary
+  ansible.builtin.command: make install
+  args:
+    chdir: "{{ ansible_env.HOME }}/src/i3lock-color/build"
+  become: true
