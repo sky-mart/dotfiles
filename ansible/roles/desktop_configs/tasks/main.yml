@@ -46,6 +46,7 @@
 - name: Install basic packages
   ansible.builtin.apt:
     pkg:
+    - autorandr
     - fonts-firacode
     - brightnessctl
     - bluez
