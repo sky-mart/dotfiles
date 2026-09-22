@@ -268,3 +268,21 @@
   ansible.builtin.copy:
     src: kglobalshortcutsrc
     dest: ~/.config/kglobalshortcutsrc
+
+- name: Prevent kglobalacceld from grabbing i3 keybindings under i3
+  block:
+    - name: Create systemd override directory
+      ansible.builtin.file:
+        path: ~/.config/systemd/user/plasma-kglobalaccel.service.d
+        state: directory
+        mode: "0755"
+
+    - name: Install kglobalacceld override
+      ansible.builtin.copy:
+        src: plasma-kglobalaccel-override.conf
+        dest: ~/.config/systemd/user/plasma-kglobalaccel.service.d/override.conf
+
+    - name: Reload systemd user daemon
+      ansible.builtin.systemd:
+        scope: user
+        daemon_reload: true
