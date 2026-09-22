@@ -117,7 +117,7 @@ export EDITOR="emacsclient --tty"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias emw="emacsclient --create-frame --no-wait" # new window
 alias emr="emacsclient --reuse-frame --no-wait"
-alias em="emacsclient --tty"
+alias em="TERM=xterm-direct emacsclient --tty" # true-color tty frame
 alias se="sudoedit"
 # smart cd command
 eval "$(zoxide init zsh)"
