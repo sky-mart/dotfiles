@@ -123,6 +123,11 @@ alias se="sudoedit"
 eval "$(zoxide init zsh)"
 eval "$(direnv hook zsh)"
 
+copyenv() {
+  (( $# == 1 )) || { print -u2 "usage: copyenv VAR_NAME"; return 2; }
+  print -rn -- "${(P)1}" | xclip -selection clipboard
+}
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 [ -f ~/.tfh/shell.sh ] && source ~/.tfh/shell.sh
