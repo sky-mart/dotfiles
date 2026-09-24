@@ -103,6 +103,15 @@
     enabled: true
     scope: user
 
+- name: Copy the suspend/resume hook for the notes mount
+  ansible.builtin.template:
+    src: notes-sleep.sh.j2
+    dest: "/usr/lib/systemd/system-sleep/{{ notes_service }}"
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
 - name: Warn about a required reboot
   ansible.builtin.debug:
     msg: "A reboot is required for the changes to take effect"

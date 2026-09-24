@@ -1,0 +1,10 @@
+#!/bin/sh
+
+case "$1" in
+    pre)
+        timeout 15 umount {{ expanded_path }} 2>/dev/null || umount -l {{ expanded_path }} 2>/dev/null || true
+        ;;
+    post)
+        XDG_RUNTIME_DIR="/run/user/$(id -u {{ ansible_user }})" runuser -u {{ ansible_user }} -- systemctl --user start {{ notes_service }}.service &
+        ;;
+esac
