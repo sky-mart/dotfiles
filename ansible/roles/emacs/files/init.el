@@ -758,6 +758,9 @@
 ;; sudo apt install texlive-latex-extra
 (use-package auctex)
 
+(use-package i3wm-config-mode
+  :mode "config\\'")
+
 ;; TFH specific
 (if (file-exists-p "~/.tfh/emacs.el")
     (load "~/.tfh/emacs.el"))
