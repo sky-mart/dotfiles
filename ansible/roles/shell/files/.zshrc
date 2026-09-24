@@ -128,6 +128,14 @@ copyenv() {
   print -rn -- "${(P)1}" | xclip -selection clipboard
 }
 
+# git update my last commit
+gu() {
+    git add -A
+    git commit --amend --no-edit
+    git pull origin --rebase main
+    git push origin --force
+}
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 [ -f ~/.tfh/shell.sh ] && source ~/.tfh/shell.sh
