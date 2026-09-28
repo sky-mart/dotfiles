@@ -445,7 +445,10 @@
   (transient-append-suffix 'magit-push "t"
     '("g" magit-push-to-gerrit))
   (transient-append-suffix 'magit-pull "e"
-    '("M" magit-pull-from-main)))
+    '("M" magit-pull-from-main))
+  :hook
+  ;; Make PR/gerrit URLs printed in the process buffer (`$') clickable.
+  (magit-process-mode . goto-address-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Development
