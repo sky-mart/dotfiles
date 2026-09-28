@@ -51,6 +51,7 @@
     - brightnessctl
     - bluez
     - dunst
+    - feh
     - flameshot
     - gcc
     - i3blocks
@@ -140,6 +141,16 @@
 - name: Create dunst config directory
   ansible.builtin.file:
     path: ~/.config/dunst
+    state: directory
+
+- name: Create flameshot config directory
+  ansible.builtin.file:
+    path: ~/.config/flameshot
+    state: directory
+
+- name: Create screenshots directory
+  ansible.builtin.file:
+    path: ~/screenshots
     state: directory
 
 - name: Create the user executables directory
@@ -270,6 +281,22 @@
       ansible.builtin.copy:
         src: dunstrc
         dest: ~/.config/dunst/dunstrc
+      when: (ansible_connection | default('ssh')) != "local"
+
+- name: Install flameshot config
+  block:
+    - name: Link flameshot config locally
+      ansible.builtin.file:
+        src: "{{ role_path }}/files/flameshot.ini"
+        path: "{{ ansible_env.HOME }}/.config/flameshot/flameshot.ini"
+        state: link
+        force: true
+      when: (ansible_connection | default("ssh")) == "local"
+
+    - name: Copy flameshot config remotely
+      ansible.builtin.copy:
+        src: flameshot.ini
+        dest: ~/.config/flameshot/flameshot.ini
       when: (ansible_connection | default('ssh')) != "local"
 
 - name: Install i3blocks volume script
