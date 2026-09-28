@@ -66,6 +66,7 @@
     - vim
     - desktop-file-utils
     - x11-xserver-utils
+    - xdg-user-dirs
     - xss-lock
     update_cache: true
     state: present
@@ -152,6 +153,21 @@
   ansible.builtin.file:
     path: ~/screenshots
     state: directory
+
+- name: Query XDG pictures directory
+  ansible.builtin.command: xdg-user-dir PICTURES
+  register: xdg_pictures_dir
+  changed_when: false
+
+- name: Create Pictures directory
+  ansible.builtin.file:
+    path: "{{ xdg_pictures_dir.stdout }}"
+    state: directory
+
+- name: Copy wallpaper image
+  ansible.builtin.copy:
+    src: ign-supertree-grove-singapore.png
+    dest: "{{ xdg_pictures_dir.stdout }}/ign-supertree-grove-singapore.png"
 
 - name: Create the user executables directory
   ansible.builtin.file:
