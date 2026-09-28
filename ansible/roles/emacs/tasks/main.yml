@@ -54,9 +54,10 @@
 
     - name: Build emacs
       ansible.builtin.shell: |
+        set -e
         ./autogen.sh
         ./configure --with-tree-sitter --with-native-compilation=aot --with-x-toolkit=gtk3 --prefix=/usr
-        make -j$(nproc)
+        make bootstrap -j"$(nproc)"
       args:
         chdir: ~/src/emacs
 
