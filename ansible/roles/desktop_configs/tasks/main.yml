@@ -268,6 +268,23 @@
         mode: 0755
       when: (ansible_connection | default('ssh')) != "local"
 
+- name: Install i3blocks bluetooth script
+  block:
+    - name: Link i3blocks bluetooth script locally
+      ansible.builtin.file:
+        src: "{{ role_path }}/files/i3blocks-bluetooth.sh"
+        path: "{{ ansible_env.HOME }}/.local/bin/i3blocks-bluetooth.sh"
+        state: link
+        force: true
+      when: (ansible_connection | default("ssh")) == "local"
+
+    - name: Copy i3blocks bluetooth script remotely
+      ansible.builtin.copy:
+        src: i3blocks-bluetooth.sh
+        dest: ~/.local/bin/i3blocks-bluetooth.sh
+        mode: 0755
+      when: (ansible_connection | default('ssh')) != "local"
+
 - name: Compile the XKB group query helper
   ansible.builtin.command:
     cmd: gcc {{ role_path }}/files/xkb-group.c -o {{ ansible_env.HOME }}/.local/bin/xkb-group -lX11
