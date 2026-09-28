@@ -16,10 +16,10 @@ mute_status="$(pactl get-sink-mute @DEFAULT_SINK@)"
 
 case "$mute_status" in
     *yes*)
-        echo "VOL mute"
+        echo "<span size='large'></span> mute"
         ;;
     *)
         pactl get-sink-volume @DEFAULT_SINK@ |
-            awk 'NR == 1 { print "VOL " $5 }'
+            awk -v icon="" 'NR == 1 { print "<span size=\"large\">" icon "</span> " $5 }'
         ;;
 esac

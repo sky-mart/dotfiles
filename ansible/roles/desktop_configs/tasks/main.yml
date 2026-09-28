@@ -102,6 +102,16 @@
   ansible.builtin.include_tasks:
     file: install_i3lock_color.yml
 
+- name: Check if FiraCode Nerd Font is installed
+  ansible.builtin.stat:
+    path: ~/.local/share/fonts/FiraCodeNerdFont/FiraCodeNerdFont-Regular.ttf
+  register: nerd_font_installed
+
+- name: Install FiraCode Nerd Font
+  when: not nerd_font_installed.stat.exists
+  ansible.builtin.include_tasks:
+    file: install_nerd_font.yml
+
 - name: Create tmux config directory
   ansible.builtin.file:
     path: ~/.config/tmux
