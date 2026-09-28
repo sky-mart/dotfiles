@@ -154,6 +154,56 @@
     path: ~/screenshots
     state: directory
 
+- name: Configure lowercase XDG user directories
+  vars:
+    xdg_user_dirs:
+      - { var: XDG_DESKTOP_DIR, old: Desktop, new: desktop }
+      - { var: XDG_DOWNLOAD_DIR, old: Downloads, new: downloads }
+      - { var: XDG_TEMPLATES_DIR, old: Templates, new: templates }
+      - { var: XDG_PUBLICSHARE_DIR, old: Public, new: public }
+      - { var: XDG_DOCUMENTS_DIR, old: Documents, new: documents }
+      - { var: XDG_MUSIC_DIR, old: Music, new: music }
+      - { var: XDG_PICTURES_DIR, old: Pictures, new: pictures }
+      - { var: XDG_VIDEOS_DIR, old: Videos, new: videos }
+  block:
+    - name: Rename legacy-cased XDG directories to lowercase
+      ansible.builtin.command:
+        cmd: "mv -n {{ ansible_env.HOME }}/{{ item.old }} {{ ansible_env.HOME }}/{{ item.new }}"
+      args:
+        creates: "{{ ansible_env.HOME }}/{{ item.new }}"
+        removes: "{{ ansible_env.HOME }}/{{ item.old }}"
+      loop: "{{ xdg_user_dirs }}"
+      loop_control:
+        label: "{{ item.old }} -> {{ item.new }}"
+
+    - name: Check for XDG directories left in a conflicting state
+      ansible.builtin.stat:
+        path: "{{ ansible_env.HOME }}/{{ item.old }}"
+      loop: "{{ xdg_user_dirs }}"
+      register: xdg_conflict_stat
+      loop_control:
+        label: "{{ item.old }}"
+
+    - name: Fail if a legacy-cased directory could not be safely migrated
+      ansible.builtin.fail:
+        msg: >-
+          ~/{{ item.item.old }} and ~/{{ item.item.new }} both exist; refusing to
+          overwrite either. Merge their contents manually, then re-run.
+      loop: "{{ xdg_conflict_stat.results }}"
+      when: item.stat.exists
+      loop_control:
+        label: "{{ item.item.old }}"
+
+    - name: Write XDG user-dirs.dirs with lowercase paths
+      ansible.builtin.copy:
+        dest: ~/.config/user-dirs.dirs
+        content: |
+          # Managed by ansible (desktop_configs role) - do not hand edit
+          {% for d in xdg_user_dirs %}
+          {{ d.var }}="$HOME/{{ d.new }}"
+          {% endfor %}
+        mode: "0644"
+
 - name: Query XDG pictures directory
   ansible.builtin.command: xdg-user-dir PICTURES
   register: xdg_pictures_dir
