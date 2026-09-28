@@ -43,7 +43,7 @@ window {
     transparency: "screenshot";
     padding: 10px;
     border:  0px;
-    border-radius: 6px;
+    border-radius: 0px;
 
     background-color: @transparent;
     spacing: 0;
@@ -69,9 +69,9 @@ inputbar {
     padding: 11px;
     background-color: #3b4252;
 
-    border: 1px;
-    border-radius:  6px 6px 0px 0px;
-    border-color: @nord10;
+    border: 2px;
+    border-radius:  0px;
+    border-color: @nord8;
 }
 
 entry, prompt, case-indicator {
@@ -85,17 +85,18 @@ prompt {
 
 listview {
     padding: 8px;
-    border-radius: 0px 0px 6px 6px;
-    border-color: @nord10;
-    border: 0px 1px 1px 1px;
+    border-radius: 0px;
+    border-color: @nord8;
+    border: 0px 2px 2px 2px;
     background-color: rgba(46,52,64,0.9);
     dynamic: false;
 }
 
 element {
     padding: 3px;
+    spacing: 12px;
     vertical-align: 0.5;
-    border-radius: 4px;
+    border-radius: 0px;
     background-color: transparent;
     color: @foreground;
     text-color: rgb(216, 222, 233);
@@ -117,7 +118,7 @@ button {
     horizontal-align: 0.5;
 
     border: 2px 0px 2px 2px;
-    border-radius: 4px 0px 0px 4px;
+    border-radius: 0px;
     border-color: @foreground;
 }
 
