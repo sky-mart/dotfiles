@@ -114,41 +114,6 @@
   ansible.builtin.include_tasks:
     file: install_nerd_font.yml
 
-- name: Create tmux config directory
-  ansible.builtin.file:
-    path: ~/.config/tmux
-    state: directory
-
-- name: Create alacritty config directory
-  ansible.builtin.file:
-    path: ~/.config/alacritty/themes
-    state: directory
-
-- name: Create rofi config directory
-  ansible.builtin.file:
-    path: ~/.config/rofi
-    state: directory
-
-- name: Create i3 config directory
-  ansible.builtin.file:
-    path: ~/.config/i3
-    state: directory
-
-- name: Create i3blocks config directory
-  ansible.builtin.file:
-    path: ~/.config/i3blocks
-    state: directory
-
-- name: Create dunst config directory
-  ansible.builtin.file:
-    path: ~/.config/dunst
-    state: directory
-
-- name: Create flameshot config directory
-  ansible.builtin.file:
-    path: ~/.config/flameshot
-    state: directory
-
 - name: Create screenshots directory
   ansible.builtin.file:
     path: ~/screenshots
@@ -226,178 +191,91 @@
     mode: "0755"
 
 - name: Install lock screen script
-  block:
-    - name: Link lock screen script locally
-      ansible.builtin.file:
-        src: "{{ role_path }}/files/lock.sh"
-        path: "{{ ansible_env.HOME }}/.local/bin/lock.sh"
-        state: link
-        force: true
-      when: (ansible_connection | default("ssh")) == "local"
-
-    - name: Copy lock screen script remotely
-      ansible.builtin.copy:
-        src: lock.sh
-        dest: ~/.local/bin/lock.sh
-        mode: 0755
-      when: (ansible_connection | default('ssh')) != "local"
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: lock.sh
+    cp_dest: ~/.local/bin/lock.sh
+    cp_mode: "0755"
 
 - name: Install tmux config
-  block:
-    - name: Link tmux config locally
-      ansible.builtin.file:
-        src: "{{ role_path }}/files/tmux.conf"
-        path: "{{ ansible_env.HOME }}/.config/tmux/tmux.conf"
-        state: link
-        force: true
-      when: (ansible_connection | default("ssh")) == "local"
-
-    - name: Copy tmux config remotely
-      ansible.builtin.copy:
-        src: tmux.conf
-        dest: ~/.config/tmux/tmux.conf
-      when: (ansible_connection | default('ssh')) != "local"
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: tmux.conf
+    cp_dest: ~/.config/tmux/tmux.conf
 
 - name: Install alacritty config
   block:
-    - name: Copy alacritty theme
-      ansible.builtin.copy:
-        src: nord.toml
-        dest: ~/.config/alacritty/themes/nord.toml
+    - name: Install alacritty theme
+      ansible.builtin.include_tasks:
+        file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+      vars:
+        cp_src: nord.toml
+        cp_dest: ~/.config/alacritty/themes/nord.toml
 
-    - name: Link alacritty config locally
-      ansible.builtin.file:
-        src: "{{ role_path }}/files/alacritty.toml"
-        path: "{{ ansible_env.HOME }}/.config/alacritty/alacritty.toml"
-        state: link
-        force: true
-      when: (ansible_connection | default("ssh")) == "local"
-
-    - name: Copy alacritty config remotely
-      ansible.builtin.copy:
-        src: alacritty.toml
-        dest: ~/.config/alacritty/alacritty.toml
-      when: (ansible_connection | default('ssh')) != "local"
+    - name: Install alacritty config file
+      ansible.builtin.include_tasks:
+        file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+      vars:
+        cp_src: alacritty.toml
+        cp_dest: ~/.config/alacritty/alacritty.toml
 
 - name: Install rofi config
-  block:
-    - name: Link rofi config locally
-      ansible.builtin.file:
-        src: "{{ role_path }}/files/{{ item.src }}"
-        path: "{{ ansible_env.HOME }}/.config/rofi/{{ item.dest }}"
-        state: link
-        force: true
-      loop:
-        - { src: rofi.rasi, dest: config.rasi }
-        - { src: nord.rasi, dest: nord.rasi }
-      when: (ansible_connection | default("ssh")) == "local"
-
-    - name: Copy rofi config remotely
-      ansible.builtin.copy:
-        src: "{{ item.src }}"
-        dest: "~/.config/rofi/{{ item.dest }}"
-      loop:
-        - { src: rofi.rasi, dest: config.rasi }
-        - { src: nord.rasi, dest: nord.rasi }
-      when: (ansible_connection | default('ssh')) != "local"
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: "{{ item.src }}"
+    cp_dest: "~/.config/rofi/{{ item.dest }}"
+  loop:
+    - { src: rofi.rasi, dest: config.rasi }
+    - { src: nord.rasi, dest: nord.rasi }
+  loop_control:
+    label: "{{ item.dest }}"
 
 - name: Install i3 config
-  block:
-    - name: Link i3 config locally
-      ansible.builtin.file:
-        src: "{{ role_path }}/files/i3.config"
-        path: "{{ ansible_env.HOME }}/.config/i3/config"
-        state: link
-        force: true
-      when: (ansible_connection | default("ssh")) == "local"
-
-    - name: Copy i3 config remotely
-      ansible.builtin.copy:
-        src: i3.config
-        dest: ~/.config/i3/config
-      when: (ansible_connection | default('ssh')) != "local"
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: i3.config
+    cp_dest: ~/.config/i3/config
 
 - name: Install i3blocks config
-  block:
-    - name: Link i3blocks config locally
-      ansible.builtin.file:
-        src: "{{ role_path }}/files/i3blocks.conf"
-        path: "{{ ansible_env.HOME }}/.config/i3blocks/config"
-        state: link
-        force: true
-      when: (ansible_connection | default("ssh")) == "local"
-
-    - name: Copy i3blocks config remotely
-      ansible.builtin.copy:
-        src: i3blocks.conf
-        dest: ~/.config/i3blocks/config
-      when: (ansible_connection | default('ssh')) != "local"
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: i3blocks.conf
+    cp_dest: ~/.config/i3blocks/config
 
 - name: Install dunst config
-  block:
-    - name: Link dunst config locally
-      ansible.builtin.file:
-        src: "{{ role_path }}/files/dunstrc"
-        path: "{{ ansible_env.HOME }}/.config/dunst/dunstrc"
-        state: link
-        force: true
-      when: (ansible_connection | default("ssh")) == "local"
-
-    - name: Copy dunst config remotely
-      ansible.builtin.copy:
-        src: dunstrc
-        dest: ~/.config/dunst/dunstrc
-      when: (ansible_connection | default('ssh')) != "local"
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: dunstrc
+    cp_dest: ~/.config/dunst/dunstrc
 
 - name: Install flameshot config
-  block:
-    - name: Link flameshot config locally
-      ansible.builtin.file:
-        src: "{{ role_path }}/files/flameshot.ini"
-        path: "{{ ansible_env.HOME }}/.config/flameshot/flameshot.ini"
-        state: link
-        force: true
-      when: (ansible_connection | default("ssh")) == "local"
-
-    - name: Copy flameshot config remotely
-      ansible.builtin.copy:
-        src: flameshot.ini
-        dest: ~/.config/flameshot/flameshot.ini
-      when: (ansible_connection | default('ssh')) != "local"
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: flameshot.ini
+    cp_dest: ~/.config/flameshot/flameshot.ini
 
 - name: Install i3blocks volume script
-  block:
-    - name: Link i3blocks volume script locally
-      ansible.builtin.file:
-        src: "{{ role_path }}/files/i3blocks-volume.sh"
-        path: "{{ ansible_env.HOME }}/.local/bin/i3blocks-volume.sh"
-        state: link
-        force: true
-      when: (ansible_connection | default("ssh")) == "local"
-
-    - name: Copy i3blocks volume script remotely
-      ansible.builtin.copy:
-        src: i3blocks-volume.sh
-        dest: ~/.local/bin/i3blocks-volume.sh
-        mode: 0755
-      when: (ansible_connection | default('ssh')) != "local"
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: i3blocks-volume.sh
+    cp_dest: ~/.local/bin/i3blocks-volume.sh
+    cp_mode: "0755"
 
 - name: Install i3blocks bluetooth script
-  block:
-    - name: Link i3blocks bluetooth script locally
-      ansible.builtin.file:
-        src: "{{ role_path }}/files/i3blocks-bluetooth.sh"
-        path: "{{ ansible_env.HOME }}/.local/bin/i3blocks-bluetooth.sh"
-        state: link
-        force: true
-      when: (ansible_connection | default("ssh")) == "local"
-
-    - name: Copy i3blocks bluetooth script remotely
-      ansible.builtin.copy:
-        src: i3blocks-bluetooth.sh
-        dest: ~/.local/bin/i3blocks-bluetooth.sh
-        mode: 0755
-      when: (ansible_connection | default('ssh')) != "local"
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: i3blocks-bluetooth.sh
+    cp_dest: ~/.local/bin/i3blocks-bluetooth.sh
+    cp_mode: "0755"
 
 - name: Compile the XKB group query helper
   ansible.builtin.command:

@@ -1,0 +1,31 @@
+# Shared task: install a single file from the including role's files/
+# directory to a destination path, creating any missing parent directories.
+# Symlinks when running locally so edits show up immediately; copies
+# otherwise.
+#
+# Required vars:
+#   cp_src:  filename inside the including role's files/ directory
+#   cp_dest: destination path on the target host
+# Optional vars:
+#   cp_mode: file mode to apply when copying remotely
+
+- name: Create parent directory of "{{ cp_dest }}"
+  ansible.builtin.file:
+    path: "{{ cp_dest | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: Link "{{ cp_src }}" locally
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/{{ cp_src }}"
+    path: "{{ cp_dest }}"
+    state: link
+    force: true
+  when: (ansible_connection | default('ssh')) == "local"
+
+- name: Copy "{{ cp_src }}" remotely
+  ansible.builtin.copy:
+    src: "{{ cp_src }}"
+    dest: "{{ cp_dest }}"
+    mode: "{{ cp_mode | default(omit) }}"
+  when: (ansible_connection | default('ssh')) != "local"

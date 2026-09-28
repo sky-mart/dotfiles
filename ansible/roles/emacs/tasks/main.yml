@@ -68,27 +68,12 @@
       become: true
   when: installed_emacs_commit != expected_emacs_commit
 
-- name: Create emacs directory
-  ansible.builtin.file:
-    path: ~/.emacs.d
-    state: directory
-    mode: "0755"
-
 - name: Install emacs config
-  block:
-    - name: Link emacs config locally
-      ansible.builtin.file:
-        src: "{{ role_path }}/files/init.el"
-        path: "{{ ansible_env.HOME }}/.emacs.d/init.el"
-        state: link
-        force: true
-      when: (ansible_connection | default("ssh")) == "local"
-
-    - name: Copy emacs config remotely
-      ansible.builtin.copy:
-        src: init.el
-        dest: "~/.emacs.d/init.el"
-      when: (ansible_connection | default('ssh')) != "local"
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: init.el
+    cp_dest: ~/.emacs.d/init.el
 
 - name: Create the user systemd directory
   ansible.builtin.file:
