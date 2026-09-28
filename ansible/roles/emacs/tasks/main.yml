@@ -1,13 +1,13 @@
-- name: Check emacs commit hash
+- name: Check emacs version
   ansible.builtin.shell: |
-    emacs --version 2>/dev/null | awk 'NR==2 {print $3}' || true
+    emacs --version 2>/dev/null | awk 'NR==1 {print $3}' || true
   register: emacs_version
   changed_when: false
   failed_when: false
 
-- name: Set emacs commit
+- name: Set emacs version
   ansible.builtin.set_fact:
-    installed_emacs_commit: "{{ emacs_version.stdout | default('') }}"
+    installed_emacs_version: "{{ emacs_version.stdout | default('') }}"
 
 - name: Install emacs
   block:
@@ -43,7 +43,6 @@
       ansible.builtin.git:
         repo: "https://git.savannah.gnu.org/git/emacs.git"
         dest: ~/src/emacs
-        version: "{{ expected_emacs_commit }}"
         depth: 1
 
     - name: Install emacs deps
@@ -56,7 +55,7 @@
     - name: Build emacs
       ansible.builtin.shell: |
         ./autogen.sh
-        ./configure --with-tree-sitter --with-native-compilation=aot --with-pgtk --prefix=/usr
+        ./configure --with-tree-sitter --with-native-compilation=aot --with-x-toolkit=gtk3 --prefix=/usr
         make -j$(nproc)
       args:
         chdir: ~/src/emacs
@@ -66,7 +65,7 @@
       args:
         chdir: "{{ ansible_env.HOME }}/src/emacs"
       become: true
-  when: installed_emacs_commit != expected_emacs_commit
+  when: installed_emacs_version != expected_emacs_version
 
 - name: Install emacs config
   ansible.builtin.include_tasks:
