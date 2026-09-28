@@ -102,7 +102,7 @@ PROMPT=' %B%F{cyan}%1~%f%b${vcs_info_msg_0_} '
 # else
 #   export EDITOR='mvim'
 # fi
-export EDITOR="emacsclient --tty"
+export EDITOR="TERM=xterm-direct emacsclient --tty"
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
