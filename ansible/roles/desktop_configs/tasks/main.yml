@@ -137,6 +137,11 @@
     path: ~/.config/i3blocks
     state: directory
 
+- name: Create dunst config directory
+  ansible.builtin.file:
+    path: ~/.config/dunst
+    state: directory
+
 - name: Create the user executables directory
   ansible.builtin.file:
     path: ~/.local/bin
@@ -249,6 +254,22 @@
       ansible.builtin.copy:
         src: i3blocks.conf
         dest: ~/.config/i3blocks/config
+      when: (ansible_connection | default('ssh')) != "local"
+
+- name: Install dunst config
+  block:
+    - name: Link dunst config locally
+      ansible.builtin.file:
+        src: "{{ role_path }}/files/dunstrc"
+        path: "{{ ansible_env.HOME }}/.config/dunst/dunstrc"
+        state: link
+        force: true
+      when: (ansible_connection | default("ssh")) == "local"
+
+    - name: Copy dunst config remotely
+      ansible.builtin.copy:
+        src: dunstrc
+        dest: ~/.config/dunst/dunstrc
       when: (ansible_connection | default('ssh')) != "local"
 
 - name: Install i3blocks volume script
