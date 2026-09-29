@@ -5,6 +5,8 @@ case "$1" in
         timeout 15 umount {{ expanded_path }} 2>/dev/null || umount -l {{ expanded_path }} 2>/dev/null || true
         ;;
     post)
-        XDG_RUNTIME_DIR="/run/user/$(id -u {{ ansible_user }})" runuser -u {{ ansible_user }} -- systemctl --user start {{ notes_service }}.service &
+        # The pre hook unmounts outside systemd, so the oneshot unit still
+        # appears active.  Restart it to force ExecStart to run on resume.
+        XDG_RUNTIME_DIR="/run/user/$(id -u {{ ansible_user }})" runuser -u {{ ansible_user }} -- systemctl --user restart {{ notes_service }}.service &
         ;;
 esac

@@ -102,6 +102,7 @@
     name: "{{ notes_service }}"
     enabled: true
     scope: user
+    daemon_reload: true
 
 - name: Copy the suspend/resume hook for the notes mount
   ansible.builtin.template:

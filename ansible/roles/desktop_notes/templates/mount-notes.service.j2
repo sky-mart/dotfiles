@@ -5,8 +5,9 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=bash -c 'for i in {1..15}; do if ping -c 1 {{ notes_server_addr }}; then mount {{ expanded_path }}; exit 0; else sleep 1; fi; done; exit 1'
-ExecStop=umount {{ expanded_path }}
+ExecStart=bash -c 'for i in {1..15}; do mountpoint -q {{ expanded_path }} && exit 0; mount {{ expanded_path }} && exit 0; sleep 1; done; exit 1'
+# The sleep hook may already have unmounted it directly.
+ExecStop=-umount {{ expanded_path }}
 RemainAfterExit=true
 
 [Install]
