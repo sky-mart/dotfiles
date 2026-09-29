@@ -1,0 +1,1 @@
+ACTION=="add", SUBSYSTEM=="input", KERNEL=="input[0-9]*", ENV{ID_INPUT_KEYBOARD}=="1", RUN+="/usr/bin/systemctl --user --machine={{ ansible_env.USER }}@ start --no-block kb-layout-hotplug.service"

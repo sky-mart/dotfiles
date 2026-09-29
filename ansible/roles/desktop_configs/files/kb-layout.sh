@@ -1,14 +1,23 @@
 #!/usr/bin/env bash
 
 OPTIONS="grp:alt_space_toggle,ctrl:swapcaps"
+STATE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/kb-layout"
 
 usage() {
-    echo "Use: (no args, prints current layout) | init | eng | english | ger | german"
+    echo "Use: (no args, prints current layout) | init | eng | english | ger | german | reapply"
     exit 1
 }
 
 set_x11_layout() {
     setxkbmap -layout "$1" -option "${OPTIONS}"
+    mkdir -p "$(dirname "${STATE_FILE}")"
+    echo "$1" >"${STATE_FILE}"
+}
+
+reapply_x11_layout() {
+    local layouts
+    layouts="$(cat "${STATE_FILE}" 2>/dev/null || true)"
+    set_x11_layout "${layouts:-us,ru}"
 }
 
 get_x11_layout() {
@@ -101,6 +110,12 @@ case "$1" in
         ;;
     ger|german)
         set_layout de,ru
+        ;;
+    reapply)
+        case "${XDG_SESSION_TYPE:-}" in
+            wayland) exit 0 ;;
+            *) reapply_x11_layout ;;
+        esac
         ;;
     *)
         usage
