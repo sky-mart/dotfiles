@@ -285,6 +285,14 @@
     cp_dest: ~/.local/bin/i3blocks-netspeed.sh
     cp_mode: "0755"
 
+- name: Install i3blocks weather script
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: i3blocks-weather.sh
+    cp_dest: ~/.local/bin/i3blocks-weather.sh
+    cp_mode: "0755"
+
 - name: Compile the XKB group query helper
   ansible.builtin.command:
     cmd: gcc {{ role_path }}/files/xkb-group.c -o {{ ansible_env.HOME }}/.local/bin/xkb-group -lX11
