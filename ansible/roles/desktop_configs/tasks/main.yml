@@ -56,6 +56,7 @@
     - gcc
     - i3blocks
     - i3-wm
+    - jq
     - libx11-dev
     - network-manager
     - picom
@@ -86,6 +87,42 @@
     update_cache: true
     state: present
   become: true
+
+- name: Install and enable the quickshell user service
+  block:
+    - name: Install quickshell config
+      ansible.builtin.include_tasks:
+        file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+      vars:
+        cp_src: quickshell/shell.qml
+        cp_dest: ~/.config/quickshell/shell.qml
+
+    - name: Install the quickshell user service
+      ansible.builtin.copy:
+        content: |
+          [Unit]
+          Description=Quickshell status bar widgets
+          After=graphical-session.target
+          PartOf=graphical-session.target
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/bin/quickshell
+          Restart=on-failure
+          RestartSec=2
+
+          [Install]
+          WantedBy=graphical-session.target
+        dest: ~/.config/systemd/user/quickshell.service
+
+    - name: Enable and start the quickshell service
+      ansible.builtin.systemd:
+        name: quickshell.service
+        scope: user
+        state: started
+        enabled: true
+        daemon_reload: true
+        force: true
 
 - name: Check alacritty version
   ansible.builtin.shell: |
@@ -306,6 +343,14 @@
   vars:
     cp_src: i3blocks-weather.sh
     cp_dest: ~/.local/bin/i3blocks-weather.sh
+    cp_mode: "0755"
+
+- name: Install i3blocks date script
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: i3blocks-date.sh
+    cp_dest: ~/.local/bin/i3blocks-date.sh
     cp_mode: "0755"
 
 - name: Compile the XKB group query helper
