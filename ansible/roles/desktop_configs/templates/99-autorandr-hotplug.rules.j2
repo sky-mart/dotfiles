@@ -1,0 +1,1 @@
+ACTION=="change", SUBSYSTEM=="drm", RUN+="/usr/bin/systemctl --user --machine={{ ansible_env.USER }}@ start --no-block autorandr-hotplug.service"

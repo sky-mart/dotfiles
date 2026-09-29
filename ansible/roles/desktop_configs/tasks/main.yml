@@ -313,3 +313,29 @@
       ansible.builtin.systemd:
         scope: user
         daemon_reload: true
+
+- name: Reapply autorandr on display hotplug (not just lid toggle/resume)
+  block:
+    - name: Install autorandr hotplug user service
+      ansible.builtin.copy:
+        src: autorandr-hotplug.service
+        dest: ~/.config/systemd/user/autorandr-hotplug.service
+
+    - name: Reload systemd user daemon
+      ansible.builtin.systemd:
+        scope: user
+        daemon_reload: true
+
+    - name: Install udev rule to trigger autorandr on DRM output changes
+      ansible.builtin.template:
+        src: 99-autorandr-hotplug.rules.j2
+        dest: /etc/udev/rules.d/99-autorandr-hotplug.rules
+        mode: "0644"
+      become: true
+      register: autorandr_udev_rule
+
+    - name: Reload udev rules
+      ansible.builtin.command: udevadm control --reload-rules
+      become: true
+      when: autorandr_udev_rule.changed
+      changed_when: false
