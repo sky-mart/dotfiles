@@ -21,4 +21,4 @@ case "$(get_active_profile)" in
     *) label="" ;;
 esac
 
-echo "<span size='large'></span> ${dev:-none}${label:+ [$label]}"
+[ -n "$dev" ] && echo "<span size='large'></span> ${dev}${label:+ [$label]}"
