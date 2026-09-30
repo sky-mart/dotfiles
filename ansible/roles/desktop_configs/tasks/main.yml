@@ -313,53 +313,22 @@
     cp_src: flameshot.ini
     cp_dest: ~/.config/flameshot/flameshot.ini
 
-- name: Install i3blocks volume script
+- name: Install i3blocks scripts
   ansible.builtin.include_tasks:
     file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
   vars:
-    cp_src: i3blocks-volume.sh
-    cp_dest: ~/.local/bin/i3blocks-volume.sh
+    cp_src: "i3blocks-{{ item }}.sh"
+    cp_dest: "~/.local/bin/i3blocks-{{ item }}.sh"
     cp_mode: "0755"
-
-- name: Install i3blocks bluetooth script
-  ansible.builtin.include_tasks:
-    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
-  vars:
-    cp_src: i3blocks-bluetooth.sh
-    cp_dest: ~/.local/bin/i3blocks-bluetooth.sh
-    cp_mode: "0755"
-
-- name: Install i3blocks netspeed script
-  ansible.builtin.include_tasks:
-    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
-  vars:
-    cp_src: i3blocks-netspeed.sh
-    cp_dest: ~/.local/bin/i3blocks-netspeed.sh
-    cp_mode: "0755"
-
-- name: Install i3blocks weather script
-  ansible.builtin.include_tasks:
-    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
-  vars:
-    cp_src: i3blocks-weather.sh
-    cp_dest: ~/.local/bin/i3blocks-weather.sh
-    cp_mode: "0755"
-
-- name: Install i3blocks date script
-  ansible.builtin.include_tasks:
-    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
-  vars:
-    cp_src: i3blocks-date.sh
-    cp_dest: ~/.local/bin/i3blocks-date.sh
-    cp_mode: "0755"
-
-- name: Install i3blocks battery script
-  ansible.builtin.include_tasks:
-    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
-  vars:
-    cp_src: i3blocks-battery.sh
-    cp_dest: ~/.local/bin/i3blocks-battery.sh
-    cp_mode: "0755"
+  loop:
+    - volume
+    - bluetooth
+    - netspeed
+    - weather
+    - date
+    - battery
+  loop_control:
+    label: "{{ item }}"
 
 - name: Compile the XKB group query helper
   ansible.builtin.command:
