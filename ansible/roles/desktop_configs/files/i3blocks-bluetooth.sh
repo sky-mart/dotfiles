@@ -13,7 +13,15 @@ if [ -n "$card" ] && [ "${BLOCK_BUTTON:-}" = "1" ]; then
     esac
 fi
 
-dev=$(bluetoothctl devices Connected 2>/dev/null | cut -d' ' -f3-)
+source "$(dirname "${BASH_SOURCE[0]}")/bt-devices.sh"
+
+mac=$(bluetoothctl devices Connected 2>/dev/null | head -1 | cut -d' ' -f2)
+name=$(bluetoothctl devices Connected 2>/dev/null | head -1 | cut -d' ' -f3-)
+
+dev=$name
+for entry in "${BT_DEVICES[@]}"; do
+    [ "${entry%% *}" = "$mac" ] && dev="${entry#* }"
+done
 
 case "$(get_active_profile)" in
     a2dp*) label=A2DP ;;

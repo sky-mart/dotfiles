@@ -1,22 +1,10 @@
 #!/usr/bin/env bash
 
-case $1 in
-    jbl)
-        mac_to_connect=00:42:79:B7:C9:8D
-        ;;
+source "$(dirname "${BASH_SOURCE[0]}")/bt-devices.sh"
 
-    px)
-        mac_to_connect=EC:66:D1:B5:29:8D
-        ;;
-
-    air)
-        mac_to_connect=E0:EB:40:28:C8:9C
-        ;;
-
-    *)
-        exit 1
-        ;;
-esac
+entry="${BT_DEVICES[$1]}"
+[ -n "$entry" ] || exit 1
+mac_to_connect="${entry%% *}"
 
 already_connected=false
 

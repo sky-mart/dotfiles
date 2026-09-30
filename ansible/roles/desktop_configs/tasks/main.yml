@@ -242,6 +242,12 @@
     state: directory
     mode: "0755"
 
+- name: Install shared bluetooth device registry
+  ansible.builtin.copy:
+    src: bt-devices.sh
+    dest: ~/.local/bin/bt-devices.sh
+    mode: "0644"
+
 - name: Install lock screen script
   ansible.builtin.include_tasks:
     file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
