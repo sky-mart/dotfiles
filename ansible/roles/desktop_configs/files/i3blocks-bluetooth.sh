@@ -22,3 +22,5 @@ case "$(get_active_profile)" in
 esac
 
 [ -n "$dev" ] && echo "<span size='large'></span> ${dev}${label:+ [$label]}"
+
+exit 0
