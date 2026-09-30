@@ -353,6 +353,14 @@
     cp_dest: ~/.local/bin/i3blocks-date.sh
     cp_mode: "0755"
 
+- name: Install i3blocks battery script
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: i3blocks-battery.sh
+    cp_dest: ~/.local/bin/i3blocks-battery.sh
+    cp_mode: "0755"
+
 - name: Compile the XKB group query helper
   ansible.builtin.command:
     cmd: gcc {{ role_path }}/files/xkb-group.c -o {{ ansible_env.HOME }}/.local/bin/xkb-group -lX11
