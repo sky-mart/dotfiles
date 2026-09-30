@@ -32,4 +32,4 @@ if [ "${BLOCK_BUTTON:-}" = "1" ]; then
     reposition_calendar
 fi
 
-date '+%Y-%m-%d %H:%M:%S'
+date '+%H:%M:%S'
