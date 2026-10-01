@@ -1,8 +1,0 @@
-[Unit]
-Description=Reapply autorandr layout when a display is hotplugged
-After=graphical-session.target
-PartOf=graphical-session.target
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/autorandr --change --default mobile
