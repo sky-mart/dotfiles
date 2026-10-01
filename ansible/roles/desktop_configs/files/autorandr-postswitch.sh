@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+unset I3SOCK
+
 focused_workspace=$(i3-msg -t get_workspaces | jq -r '.[] | select(.focused) | .name')
 
 move_workspaces() {
