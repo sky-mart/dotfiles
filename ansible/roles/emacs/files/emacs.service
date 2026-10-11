@@ -2,6 +2,7 @@
 Description=Emacs server
 
 [Service]
+EnvironmentFile=-%h/.emacs.d/environment
 ExecStart=/usr/bin/emacs --fg-daemon
 ExecStop=/usr/bin/emacsclient --eval "(kill-emacs)"
 Restart=on-failure

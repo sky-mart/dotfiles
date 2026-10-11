@@ -685,7 +685,7 @@
 (org-crypt-use-before-save-magic)
 (add-to-list 'org-tags-exclude-from-inheritance "crypt")
 
-(defvar mart/org-gcal-calendar-id "primary"
+(defvar mart/org-gcal-email "primary"
   "Google Calendar id synced by org-gcal.")
 
 (use-package org-gcal
@@ -696,14 +696,34 @@
              org-gcal-sync)
   :config
   ;; If shell env vars get annoying, auth-source with ~/.authinfo.gpg is a good next step.
-  (setq mart/org-gcal-calendar-id (or (getenv "ORG_GCAL_CALENDAR_ID")
-                                      mart/org-gcal-calendar-id)
+  (setq mart/org-gcal-email (or (getenv "ORG_GCAL_EMAIL")
+                                      mart/org-gcal-email)
         org-gcal-client-id (or (getenv "ORG_GCAL_CLIENT_ID")
                                org-gcal-client-id)
         org-gcal-client-secret (or (getenv "ORG_GCAL_CLIENT_SECRET")
                                    org-gcal-client-secret)
-        org-gcal-file-alist `((,mart/org-gcal-calendar-id
-                               . ,(file-name-concat org-directory "Calendar.org")))))
+        org-gcal-file-alist `((,mart/org-gcal-email
+                               . ,(file-name-concat org-directory "Projects.org"))))
+  (org-gcal-reload-client-id-secret)
+  )
+
+(defun mart/org-gcal-post-at-point ()
+  "Post the Org entry at point without importing data from Google Calendar."
+  (interactive)
+  (org-gcal-post-at-point t nil 'always-push))
+
+(defun mart/org-gcal-push-buffer ()
+  "Push all Org-managed Calendar entries in the current buffer to Google."
+  (interactive)
+  (let ((count 0))
+    (org-map-entries
+     (lambda ()
+       (when (equal (org-entry-get nil org-gcal-managed-property) "org")
+         (cl-incf count)
+         (org-gcal-post-at-point t nil 'always-push)))
+     nil 'file)
+    (message "Pushing %d Org event%s to Google Calendar"
+             count (if (= count 1) "" "s"))))
 
 (defun mart/notes-file-p (file-name)
   (when file-name
@@ -741,8 +761,8 @@
     ("s" "ы" (open-note "Stats.org") "Stats")
     ("r" "к" (open-note "Archive.org") "Archive")
     ("a" "ф" (org-agenda-list) "Agenda")
-    ("g" "п" (org-gcal-sync) "Sync Google Calendar")
-    ("G" "П" (org-gcal-post-at-point) "Post entry to Google Calendar")
+    ("g" "п" (mart/org-gcal-push-buffer) "Push buffer to Google Calendar")
+    ("G" "П" (mart/org-gcal-post-at-point) "Post entry to Google Calendar")
     ("n" "т" (mart/new-inbox-entry) "New inbox"))
   (global-set-key (kbd "C-`") #'notes-launcher/body))
 
