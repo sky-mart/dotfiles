@@ -66,6 +66,16 @@
       args:
         chdir: "{{ ansible_env.HOME }}/src/emacs"
       become: true
+
+    - name: Recompile installed packages for the new Emacs version
+      ansible.builtin.command:
+        argv:
+          - emacs
+          - -Q
+          - --batch
+          - --eval
+          - "(progn (require 'package) (package-initialize) (package-recompile-all))"
+      changed_when: true
   when: installed_emacs_version != expected_emacs_version
 
 - name: Install emacs config
