@@ -1,0 +1,25 @@
+- name: Install Thunar and desktop integration
+  ansible.builtin.apt:
+    pkg:
+      - gvfs
+      - gvfs-backends
+      - thunar
+      - thunar-volman
+      - tumbler
+      - udisks2
+    state: present
+  become: true
+
+- name: Install Nordic GTK theme
+  ansible.builtin.git:
+    repo: https://github.com/EliverLara/Nordic.git
+    dest: ~/.local/share/themes/Nordic
+    depth: 1
+    version: master
+
+- name: Configure GTK 3 to use Nordic theme
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: gtk-3.0-settings.ini
+    cp_dest: ~/.config/gtk-3.0/settings.ini

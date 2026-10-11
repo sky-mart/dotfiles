@@ -73,6 +73,10 @@
     state: present
   become: true
 
+- name: Install and configure Thunar
+  ansible.builtin.include_tasks:
+    file: install_thunar.yml
+
 - name: Add trixie-backports apt source
   ansible.builtin.copy:
     content: |
