@@ -3,12 +3,13 @@
     - name: Load vault variables
       include_vars:
         file: desktop_vault.yml
-      when: use_vault | default(false)
+      when: (use_vault | default(false)) | bool
 
   roles:
     - dev
     - shell
-    - desktop_notes
+    - role: desktop_notes
+      when: (use_vault | default(false)) | bool
     - emacs
     - desktop_configs
 
@@ -16,4 +17,6 @@
     - name: Setup notes and docs backups
       include_role:
         name: backups
-      when: (home_pc | default(false)) == true
+      when:
+        - (use_vault | default(false)) | bool
+        - (home_pc | default(false)) | bool

@@ -3,7 +3,7 @@
     - name: Load vault variables
       include_vars:
         file: server_vault.yml
-      when: use_vault | default(false)
+      when: (use_vault | default(false)) | bool
 
   roles:
     - shell
@@ -12,4 +12,6 @@
     - docker
     - role: ftp_server
       become: true
-    - dav_server
+      when: (use_vault | default(false)) | bool
+    - role: dav_server
+      when: (use_vault | default(false)) | bool
