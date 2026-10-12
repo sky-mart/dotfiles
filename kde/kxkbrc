@@ -1,8 +1,0 @@
-[Layout]
-DisplayNames=,,
-LayoutList=us,ru,de
-LayoutLoopCount=2
-Options=ctrl:swapcaps,grp_led:scroll
-ResetOldOptions=true
-Use=true
-VariantList=,,

@@ -1,5 +1,0 @@
-Write in your .emacs file
-#+begin_src emacs-lisp :tangle yes
-(package-initialize)
-(org-babel-load-file "~/Dotfiles/emacs/init.org")
-#+end_src
