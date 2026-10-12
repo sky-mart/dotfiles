@@ -85,6 +85,12 @@
     cp_src: init.el
     cp_dest: ~/.emacs.d/init.el
 
+- name: Create emacs environment file
+  ansible.builtin.template:
+    src: environment.j2
+    dest: ~/.emacs.d/environment
+    mode: "0600"
+
 - name: Create the user systemd directory
   ansible.builtin.file:
     path: ~/.config/systemd/user
