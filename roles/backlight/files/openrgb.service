@@ -1,0 +1,13 @@
+[Unit]
+Description=Keep the HyperX QuadCast S lighting teal
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/openrgb --server --device "HyperX Quadcast S" --mode Direct --color 008080,008080
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

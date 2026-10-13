@@ -12,6 +12,8 @@
       when: (use_vault | default(false)) | bool
     - emacs
     - desktop_configs
+    - role: backlight
+      when: (home_pc | default(false)) | bool
 
   tasks:
     - name: Setup notes and docs backups

@@ -1,0 +1,121 @@
+- name: Download OpenRGB hidapi-hotplug dependencies
+  ansible.builtin.get_url:
+    url: "{{ item.url }}"
+    dest: "/tmp/{{ item.filename }}"
+    checksum: "sha256:{{ item.sha256 }}"
+    mode: "0644"
+  loop:
+    - filename: libhidapi-hotplug-hidraw0_0.15.0-1_trixie_amd64.deb
+      url: https://codeberg.org/OpenRGB/hidapi-hotplug/releases/download/hidapi-hotplug-0.15.0/libhidapi-hotplug-hidraw0_0.15.0-1_trixie_amd64.deb
+      sha256: 4c12ad429aad50b6e38ff7a04be37268a2401b76884d4067f70ed9df37ebbd2d
+    - filename: libhidapi-hotplug-libusb0_0.15.0-1_trixie_amd64.deb
+      url: https://codeberg.org/OpenRGB/hidapi-hotplug/releases/download/hidapi-hotplug-0.15.0/libhidapi-hotplug-libusb0_0.15.0-1_trixie_amd64.deb
+      sha256: ff4c563d396a80acd876454bf831af3e6578e4bd1d0b5b47990f75e6577450a6
+    - filename: libhidapi-hotplug-dev_0.15.0-1_trixie_amd64.deb
+      url: https://codeberg.org/OpenRGB/hidapi-hotplug/releases/download/hidapi-hotplug-0.15.0/libhidapi-hotplug-dev_0.15.0-1_trixie_amd64.deb
+      sha256: e3c331b15deda7bf5562ea86b6a51163ea0a587a971c70bb8cf5bda2a54105cd
+  loop_control:
+    label: "{{ item.filename }}"
+
+- name: Install OpenRGB hidapi-hotplug dependencies
+  ansible.builtin.apt:
+    deb: "/tmp/{{ item }}"
+    state: present
+  become: true
+  loop:
+    - libhidapi-hotplug-hidraw0_0.15.0-1_trixie_amd64.deb
+    - libhidapi-hotplug-libusb0_0.15.0-1_trixie_amd64.deb
+    - libhidapi-hotplug-dev_0.15.0-1_trixie_amd64.deb
+
+- name: Download the official OpenRGB Debian package
+  ansible.builtin.get_url:
+    url: https://codeberg.org/OpenRGB/OpenRGB/releases/download/release_1.0/openrgb_1.0_amd64_trixie_81bbe18.deb
+    dest: /tmp/openrgb_1.0_amd64_trixie.deb
+    checksum: sha256:51f8b4f5260207569fdeda9e1b9dd0bd2d02af2b30e068f7c79471e7f53e36f8
+    mode: "0644"
+
+- name: Install OpenRGB from the Debian package
+  ansible.builtin.apt:
+    deb: /tmp/openrgb_1.0_amd64_trixie.deb
+    state: present
+  become: true
+
+- name: Remove the obsolete manually generated OpenRGB udev rules
+  ansible.builtin.file:
+    path: /etc/udev/rules.d/60-openrgb.rules
+    state: absent
+  become: true
+
+- name: Reload udev rules for OpenRGB
+  ansible.builtin.command: udevadm control --reload-rules
+  become: true
+  changed_when: false
+
+- name: Apply OpenRGB rules to connected USB devices
+  ansible.builtin.command: udevadm trigger --subsystem-match=usb
+  become: true
+  changed_when: false
+
+- name: Stop OpenRGB before validating local device detection
+  ansible.builtin.systemd:
+    name: openrgb.service
+    scope: user
+    state: stopped
+  failed_when: false
+  changed_when: false
+
+- name: Check that OpenRGB detects the HyperX QuadCast S
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/openrgb
+      - --noautoconnect
+      - --list-devices
+  register: openrgb_devices
+  changed_when: false
+  failed_when: false
+
+- name: Record whether the HyperX QuadCast S was detected
+  ansible.builtin.set_fact:
+    microphone_detected: "{{ 'HyperX Quadcast S' in (openrgb_devices.stdout | default('')) }}"
+
+- name: Warn when the HyperX QuadCast S is not detected
+  ansible.builtin.debug:
+    msg: HyperX QuadCast S was not detected; the OpenRGB service will not be started.
+  when: not microphone_detected
+
+- name: Remove the OpenRGB user service when the microphone is absent
+  block:
+    - name: Disable the OpenRGB user service
+      ansible.builtin.systemd:
+        name: openrgb.service
+        scope: user
+        state: stopped
+        enabled: false
+      failed_when: false
+
+    - name: Remove the OpenRGB user service unit
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.config/systemd/user/openrgb.service"
+        state: absent
+
+    - name: Reload the user service manager after removing OpenRGB
+      ansible.builtin.systemd:
+        scope: user
+        daemon_reload: true
+  when: not microphone_detected
+
+- name: Install the OpenRGB user service
+  ansible.builtin.copy:
+    src: openrgb.service
+    dest: "{{ ansible_env.HOME }}/.config/systemd/user/openrgb.service"
+    mode: "0644"
+  when: microphone_detected
+
+- name: Enable and start the OpenRGB user service
+  ansible.builtin.systemd:
+    name: openrgb.service
+    scope: user
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  when: microphone_detected
