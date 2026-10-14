@@ -308,6 +308,12 @@
     dest: ~/.local/bin/new-terminal.sh
     mode: "0755"
 
+- name: Install new Emacs frame launcher
+  ansible.builtin.copy:
+    src: new-emacs-frame.sh
+    dest: ~/.local/bin/new-emacs-frame.sh
+    mode: "0755"
+
 - name: Install i3blocks config
   ansible.builtin.include_tasks:
     file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
