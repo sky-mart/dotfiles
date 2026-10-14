@@ -19,4 +19,10 @@ if [[ "${window_class,,}" == "alacritty" ]]; then
   fi
 fi
 
+if [[ "${window_class,,}" == "emacs" ]]; then
+  if emacsclient --eval "(let ((buffer (window-buffer (frame-selected-window (selected-frame))))) (start-process \"new-terminal\" nil \"alacritty\" \"--working-directory\" (buffer-local-value 'default-directory buffer)))" >/dev/null; then
+    exit 0
+  fi
+fi
+
 exec alacritty
