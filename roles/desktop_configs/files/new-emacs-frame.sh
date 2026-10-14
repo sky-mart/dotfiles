@@ -13,10 +13,10 @@ if [[ "${window_class,,}" == "alacritty" ]]; then
     if [[ -n "$shell_pid" ]]; then
       working_directory=$(readlink "/proc/$shell_pid/cwd")
       if [[ -n "$working_directory" ]]; then
-        exec emacsclient -c -a emacs "$working_directory"
+        exec emacsclient -c -a emacs --eval "(magit-status \"$working_directory\")"
       fi
     fi
   fi
 fi
 
-exec emacsclient -c -a emacs
+exec emacsclient -c -a emacs --eval '(magit-status)'
