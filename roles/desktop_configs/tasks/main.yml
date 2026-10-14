@@ -355,6 +355,7 @@
     - volume
     - brightness
     - bluetooth
+    - wifi
     - netspeed
     - weather
     - date

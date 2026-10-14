@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+state_file="${XDG_RUNTIME_DIR:-/tmp}/i3blocks-network-visible"
+[ -e "$state_file" ] || exit 0
+
 iface=$(ip route show default 2>/dev/null | awk '{print $5; exit}')
 [ -z "$iface" ] && exit 0
 
