@@ -344,6 +344,7 @@
     cp_mode: "0755"
   loop:
     - volume
+    - brightness
     - bluetooth
     - netspeed
     - weather
