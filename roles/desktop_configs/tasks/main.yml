@@ -260,6 +260,14 @@
     cp_dest: ~/.local/bin/lock.sh
     cp_mode: "0755"
 
+- name: Install power menu script
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: power-menu.sh
+    cp_dest: ~/.local/bin/power-menu.sh
+    cp_mode: "0755"
+
 - name: Install tmux config
   ansible.builtin.include_tasks:
     file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
@@ -351,6 +359,7 @@
     - weather
     - date
     - battery
+    - power
   loop_control:
     label: "{{ item }}"
 
