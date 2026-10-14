@@ -343,6 +343,7 @@
     cp_dest: "~/.local/bin/i3blocks-{{ item }}.sh"
     cp_mode: "0755"
   loop:
+    - keyboard
     - volume
     - brightness
     - bluetooth

@@ -117,6 +117,9 @@ case "$1" in
             *) reapply_x11_layout ;;
         esac
         ;;
+    next)
+        ~/.local/bin/xkb-group next
+        ;;
     *)
         usage
         ;;
