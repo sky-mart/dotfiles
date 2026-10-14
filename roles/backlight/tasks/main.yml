@@ -40,6 +40,39 @@
     state: present
   become: true
 
+- name: Install the compiler for the keyboard backlight helper
+  ansible.builtin.apt:
+    name: gcc
+    state: present
+  become: true
+
+- name: Install the Apex Pro TKL backlight source
+  ansible.builtin.copy:
+    src: set-apex-pro-tkl-teal.c
+    dest: /usr/local/src/set-apex-pro-tkl-teal.c
+    mode: "0644"
+  become: true
+  register: apex_backlight_source
+
+- name: Check for the Apex Pro TKL backlight helper
+  ansible.builtin.stat:
+    path: /usr/local/bin/set-apex-pro-tkl-teal
+  register: apex_backlight_helper
+
+- name: Build the Apex Pro TKL backlight helper
+  ansible.builtin.command:
+    argv:
+      - cc
+      - -O2
+      - -Wall
+      - -Wextra
+      - /usr/local/src/set-apex-pro-tkl-teal.c
+      - -lhidapi-hotplug-hidraw
+      - -o
+      - /usr/local/bin/set-apex-pro-tkl-teal
+  become: true
+  when: apex_backlight_source.changed or not apex_backlight_helper.stat.exists
+
 - name: Remove the obsolete manually generated OpenRGB udev rules
   ansible.builtin.file:
     path: /etc/udev/rules.d/60-openrgb.rules

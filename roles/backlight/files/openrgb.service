@@ -1,10 +1,11 @@
 [Unit]
-Description=Keep the GPU, motherboard, and microphone lighting teal
+Description=Keep the PC lighting teal
 After=graphical-session.target
 PartOf=graphical-session.target
 
 [Service]
 Type=simple
+ExecStartPre=-/usr/local/bin/set-apex-pro-tkl-teal
 ExecStart=/usr/bin/openrgb --server
 ExecStartPost=/usr/bin/sleep 5
 ExecStartPost=/usr/bin/openrgb --client 127.0.0.1:6742 --device "HyperX Quadcast S" --mode Direct --color 008080,008080 --device "ASUS ROG STRIX B550-XE GAMING WIFI" --mode Static --color 008080 --device "ASUS ROG STRIX GeForce RTX 3080 12G OC" --mode "Chase Fade" --color 6DD5E7 --brightness 100 --speed 50
