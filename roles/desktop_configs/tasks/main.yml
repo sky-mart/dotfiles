@@ -360,6 +360,7 @@
     - date
     - battery
     - power
+    - music
   loop_control:
     label: "{{ item }}"
 
