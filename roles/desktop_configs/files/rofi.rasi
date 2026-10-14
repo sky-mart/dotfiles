@@ -1,6 +1,6 @@
 configuration {
     modi: "drun";
-    font: "Fira Code 16";
+    font: "Fira Code 12";
     show-icons: true;
     display-drun: "";
     drun-display-format: "{name}";
@@ -14,10 +14,10 @@ configuration {
 @theme "~/.config/rofi/nord.rasi"
 
 listview {
-    lines: 5;
+    lines: 4;
     columns: 1;
 }
 
 window {
-    width: 20%;
+    width: 32%;
 }
