@@ -302,6 +302,12 @@
     cp_src: i3.config
     cp_dest: ~/.config/i3/config
 
+- name: Install new terminal launcher
+  ansible.builtin.copy:
+    src: new-terminal.sh
+    dest: ~/.local/bin/new-terminal.sh
+    mode: "0755"
+
 - name: Install i3blocks config
   ansible.builtin.include_tasks:
     file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
