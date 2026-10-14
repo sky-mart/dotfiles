@@ -3,6 +3,7 @@
     pkg:
       - gvfs
       - gvfs-backends
+      - papirus-icon-theme
       - thunar
       - thunar-volman
       - tumbler
