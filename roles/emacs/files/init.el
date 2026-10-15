@@ -253,7 +253,16 @@
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
   ;; (load-theme 'doom-outrun-electric t)
-  (load-theme 'doom-nord t)
+  (let ((mode-file (expand-file-name "~/.config/theme-mode")))
+    (load-theme
+     (if (and (file-readable-p mode-file)
+              (string= (string-trim (with-temp-buffer
+                                      (insert-file-contents mode-file)
+                                      (buffer-string)))
+                       "light"))
+         'doom-nord-light
+       'doom-nord)
+     t))
   ;; Emacs 31's Gnus defaults and doom-nord create an inheritance cycle here.
   (face-spec-set
    'gnus-group-news-low

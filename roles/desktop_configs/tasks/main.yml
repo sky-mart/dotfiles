@@ -284,6 +284,13 @@
         cp_src: nord.toml
         cp_dest: ~/.config/alacritty/themes/nord.toml
 
+    - name: Install light Alacritty theme
+      ansible.builtin.include_tasks:
+        file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+      vars:
+        cp_src: nord-light.toml
+        cp_dest: ~/.config/alacritty/themes/nord-light.toml
+
     - name: Install alacritty config file
       ansible.builtin.include_tasks:
         file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
@@ -309,6 +316,16 @@
   vars:
     cp_src: i3.config
     cp_dest: ~/.config/i3/config
+
+- name: Install i3 theme bar palettes
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: "theme-bar-{{ item }}.conf"
+    cp_dest: "~/.config/i3/theme-bar-{{ item }}.conf"
+  loop:
+    - dark
+    - light
 
 - name: Install new terminal launcher
   ansible.builtin.copy:
@@ -364,6 +381,35 @@
     - music
   loop_control:
     label: "{{ item }}"
+
+- name: Install theme switch command
+  ansible.builtin.copy:
+    src: theme-switch.sh
+    dest: ~/.local/bin/theme-switch.sh
+    mode: "0755"
+
+- name: Remove old theme status block script
+  ansible.builtin.file:
+    path: ~/.local/bin/i3blocks-theme.sh
+    state: absent
+
+- name: Check saved desktop theme mode
+  ansible.builtin.stat:
+    path: ~/.config/theme-mode
+  register: saved_theme_mode
+
+- name: Read saved desktop theme mode
+  ansible.builtin.slurp:
+    src: ~/.config/theme-mode
+  register: saved_theme_mode_content
+  when: saved_theme_mode.stat.exists
+
+- name: Initialize desktop theme
+  ansible.builtin.command:
+    argv:
+      - "{{ ansible_env.HOME }}/.local/bin/theme-switch.sh"
+      - "{{ (saved_theme_mode_content.content | b64decode | trim) if saved_theme_mode.stat.exists else 'dark' }}"
+  changed_when: false
 
 - name: Compile the XKB group query helper
   ansible.builtin.command:

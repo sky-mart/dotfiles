@@ -1,6 +1,6 @@
 [general]
 # theme
-import = ["~/.config/alacritty/themes/nord.toml"]
+import = ["~/.config/alacritty/themes/current.toml"]
 
 [scrolling]
 history = 10000
