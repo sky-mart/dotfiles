@@ -19,4 +19,4 @@ if [[ "${window_class,,}" == "alacritty" ]]; then
   fi
 fi
 
-exec emacsclient -c -a emacs --eval '(magit-status)'
+exec emacsclient -c -a emacs --eval '(switch-to-buffer "*scratch*")'
