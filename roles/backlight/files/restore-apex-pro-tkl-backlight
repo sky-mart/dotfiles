@@ -1,0 +1,12 @@
+#!/bin/sh
+
+[ "$1" = post ] || exit 0
+
+# The keyboard can take a moment to reappear after the USB bus resumes.
+for attempt in 1 2 3 4; do
+    /usr/local/bin/set-apex-pro-tkl-teal && exit 0
+    /usr/bin/sleep 1
+done
+
+# A missing keyboard must not make the system resume fail.
+exit 0

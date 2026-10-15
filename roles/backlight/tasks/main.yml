@@ -73,6 +73,13 @@
   become: true
   when: apex_backlight_source.changed or not apex_backlight_helper.stat.exists
 
+- name: Restore the Apex Pro TKL backlight after resume
+  ansible.builtin.copy:
+    src: restore-apex-pro-tkl-backlight
+    dest: /usr/lib/systemd/system-sleep/restore-apex-pro-tkl-backlight
+    mode: "0755"
+  become: true
+
 - name: Remove the obsolete manually generated OpenRGB udev rules
   ansible.builtin.file:
     path: /etc/udev/rules.d/60-openrgb.rules
