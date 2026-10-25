@@ -104,13 +104,26 @@
     scope: user
     daemon_reload: true
 
-- name: Copy the suspend/resume hook for the notes mount
+- name: Remove the old notes sleep hook that runs while user sessions are frozen
+  ansible.builtin.file:
+    path: "/usr/lib/systemd/system-sleep/{{ notes_service }}"
+    state: absent
+  become: true
+
+- name: Install the notes suspend/resume service
   ansible.builtin.template:
-    src: notes-sleep.sh.j2
-    dest: "/usr/lib/systemd/system-sleep/{{ notes_service }}"
+    src: notes-sleep.service.j2
+    dest: "/etc/systemd/system/{{ notes_service }}-sleep.service"
     owner: root
     group: root
-    mode: "0755"
+    mode: "0644"
+  become: true
+
+- name: Enable notes unmounting before sleep
+  ansible.builtin.systemd:
+    name: "{{ notes_service }}-sleep.service"
+    enabled: true
+    daemon_reload: true
   become: true
 
 - name: Warn about a required reboot

@@ -1,0 +1,14 @@
+[Unit]
+Description=Unmount WebDAV notes before freezing user sessions for sleep
+Before=sleep.target
+StopWhenUnneeded=yes
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+Environment=XDG_RUNTIME_DIR=/run/user/{{ user_uid.stdout }}
+ExecStart=/usr/sbin/runuser -u {{ ansible_user }} -- /usr/bin/systemctl --user stop {{ notes_service }}.service
+ExecStop=/usr/sbin/runuser -u {{ ansible_user }} -- /usr/bin/systemctl --user --no-block start {{ notes_service }}.service
+
+[Install]
+RequiredBy=sleep.target
