@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 
-exec i3lock \
+# Keep the wrapper alive so unlocking can cancel the suspend timer.
+cleanup() {
+    kill "$suspend_pid" 2>/dev/null || true
+    wait "$suspend_pid" 2>/dev/null || true
+    kill "$locker_pid" 2>/dev/null || true
+}
+trap cleanup EXIT
+trap 'exit 143' TERM
+trap 'exit 130' INT
+trap 'exit 129' HUP
+
+i3lock \
     --nofork \
     --color=2e3440ff \
     --indicator \
@@ -30,7 +41,27 @@ exec i3lock \
     --layout-size=20 \
     --layout-pos="ix:iy+150" \
     --greeter-text="$(whoami)" \
-    --greeter-color=d8dee9ff \
+    --greeter-color=8dee9ff \
     --greeteroutline-color=2e3440ff \
     --greeter-size=32 \
-    --greeter-pos="ix:iy-150"
+    --greeter-pos="ix:iy-150" &
+locker_pid=$!
+
+# Only i3lock should hold the sleep inhibitor until it is ready.
+if [[ -n ${XSS_SLEEP_LOCK_FD:-} ]]; then
+    exec {XSS_SLEEP_LOCK_FD}<&-
+fi
+
+(
+    trap - EXIT
+    trap 'kill "$sleep_pid" 2>/dev/null; exit 0' TERM INT HUP
+    sleep 600 & # 10 minutes
+    sleep_pid=$!
+    wait "$sleep_pid" || exit
+    if kill -0 "$locker_pid" 2>/dev/null; then
+        systemctl suspend
+    fi
+) &
+suspend_pid=$!
+
+wait "$locker_pid"
