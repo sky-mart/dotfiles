@@ -58,9 +58,12 @@
     - i3-wm
     - jq
     - libx11-dev
+    - libxi6
     - network-manager
     - picom
     - playerctl
+    - python3-dbus
+    - python3-gi
     - pulseaudio-utils
     - rofi
     - tmux
@@ -352,6 +355,21 @@
   vars:
     cp_src: dunstrc
     cp_dest: ~/.config/dunst/dunstrc
+
+- name: Install notification workspace helper
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: "{{ item.src }}"
+    cp_dest: "{{ item.dest }}"
+  loop:
+    - { src: notification-workspace.py, dest: "~/.local/bin/notification-workspace.py" }
+    - { src: notification-workspace.service, dest: "~/.config/systemd/user/notification-workspace.service" }
+
+- name: Reload notification workspace service definition
+  ansible.builtin.systemd:
+    scope: user
+    daemon_reload: true
 
 - name: Install flameshot config
   ansible.builtin.include_tasks:

@@ -1,0 +1,8 @@
+[Unit]
+Description=Focus notification senders in i3 after a left click
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/python3 %h/.local/bin/notification-workspace.py
+Restart=on-failure
+RestartSec=3
