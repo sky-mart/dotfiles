@@ -41,7 +41,7 @@ i3lock \
     --layout-size=20 \
     --layout-pos="ix:iy+150" \
     --greeter-text="$(whoami)" \
-    --greeter-color=8dee9ff \
+    --greeter-color=d8dee9ff \
     --greeteroutline-color=2e3440ff \
     --greeter-size=32 \
     --greeter-pos="ix:iy-150" &
