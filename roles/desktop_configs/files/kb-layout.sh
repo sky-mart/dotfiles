@@ -9,7 +9,7 @@ usage() {
 }
 
 set_x11_layout() {
-    setxkbmap -layout "$1" -option "${OPTIONS}"
+    setxkbmap -layout "$1" -option "${OPTIONS}" || return $?
     mkdir -p "$(dirname "${STATE_FILE}")"
     echo "$1" >"${STATE_FILE}"
 }
@@ -21,10 +21,14 @@ reapply_x11_layout() {
 }
 
 get_x11_layout() {
-    local layouts group
-    layouts="$(setxkbmap -query | awk '/^layout:/ {print $2}')"
-    group="$(~/.local/bin/xkb-group)"
-    echo "${layouts}" | cut -d',' -f"$((group + 1))"
+    local name
+    name="$(~/.local/bin/xkb-group name)" || return $?
+    case "$name" in
+        "English (US)") echo us ;;
+        "Russian") echo ru ;;
+        "German") echo de ;;
+        *) printf '%s\n' "$name" ;;
+    esac
 }
 
 set_plasma_layout() {
@@ -80,7 +84,8 @@ set_layout() {
             fi
             ;;
         *)
-            set_x11_layout "$layouts"
+            set_x11_layout "$layouts" || return $?
+            ~/.local/bin/xkb-group first
             ;;
     esac
 }
