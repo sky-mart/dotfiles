@@ -66,8 +66,6 @@
     - python3-gi
     - pulseaudio-utils
     - rofi
-    - tmux
-    - vim
     - desktop-file-utils
     - x11-xserver-utils
     - xdg-user-dirs
@@ -270,13 +268,6 @@
     cp_src: power-menu.sh
     cp_dest: ~/.local/bin/power-menu.sh
     cp_mode: "0755"
-
-- name: Install tmux config
-  ansible.builtin.include_tasks:
-    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
-  vars:
-    cp_src: tmux.conf
-    cp_dest: ~/.config/tmux/tmux.conf
 
 - name: Install alacritty config
   block:

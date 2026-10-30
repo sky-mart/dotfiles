@@ -4,6 +4,8 @@
     - fonts-powerline
     - git
     - mc
+    - tmux
+    - vim
     - zoxide
     - zsh
     - zsh-syntax-highlighting
@@ -12,6 +14,13 @@
     update_cache: true
     state: present
   become: true
+
+- name: Install tmux config
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: tmux.conf
+    cp_dest: ~/.config/tmux/tmux.conf
 
 - name: Install Midnight Commander Nord dark skin
   ansible.builtin.include_tasks:
