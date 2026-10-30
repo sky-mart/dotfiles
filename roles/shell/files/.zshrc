@@ -121,7 +121,10 @@ alias em="TERM=xterm-direct emacsclient --tty" # true-color tty frame
 alias se="sudoedit"
 # smart cd command
 eval "$(zoxide init zsh)"
-eval "$(direnv hook zsh)"
+
+if command -v direnv >/dev/null 2>&1; then
+    eval "$(direnv hook zsh)"
+fi
 
 copyenv() {
   (( $# == 1 )) || { print -u2 "usage: copyenv VAR_NAME"; return 2; }
