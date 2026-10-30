@@ -1,8 +1,9 @@
-- name: Install zsh and its deps
+- name: Install shell packages
   ansible.builtin.apt:
     pkg:
     - fonts-powerline
     - git
+    - mc
     - zoxide
     - zsh
     - zsh-syntax-highlighting
@@ -11,6 +12,29 @@
     update_cache: true
     state: present
   become: true
+
+- name: Install Midnight Commander Nord dark skin
+  ansible.builtin.include_tasks:
+    file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
+  vars:
+    cp_src: nord-dark.ini
+    cp_dest: ~/.local/share/mc/skins/nord-dark.ini
+    cp_mode: "0644"
+
+- name: Create Midnight Commander configuration directory
+  ansible.builtin.file:
+    path: ~/.config/mc
+    state: directory
+    mode: "0755"
+
+- name: Select Midnight Commander Nord dark skin
+  community.general.ini_file:
+    path: ~/.config/mc/ini
+    section: Midnight-Commander
+    option: skin
+    value: nord-dark
+    no_extra_spaces: true
+    mode: "0644"
 
 - name: Install oh my zsh
   ansible.builtin.git:
