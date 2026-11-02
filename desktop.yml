@@ -11,7 +11,7 @@
     - role: desktop_notes
       when: (use_vault | default(false)) | bool
     - emacs
-    - desktop_configs
+    - gui
     - role: backlight
       when: (home_pc | default(false)) | bool
 

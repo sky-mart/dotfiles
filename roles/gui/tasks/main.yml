@@ -220,7 +220,7 @@
       ansible.builtin.copy:
         dest: ~/.config/user-dirs.dirs
         content: |
-          # Managed by ansible (desktop_configs role) - do not hand edit
+          # Managed by ansible (gui role) - do not hand edit
           {% for d in xdg_user_dirs %}
           {{ d.var }}="$HOME/{{ d.new }}"
           {% endfor %}
