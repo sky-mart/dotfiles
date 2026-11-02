@@ -1,3 +1,26 @@
+- name: Install development packages
+  ansible.builtin.apt:
+    pkg:
+    - build-essential
+    - ca-certificates
+    - curl
+    - git
+    - nodejs
+    - npm
+    - pkg-config
+    update_cache: true
+    state: present
+  become: true
+
+- name: Install Bazel via Bazelisk
+  community.general.npm:
+    name: "@bazel/bazelisk"
+    global: true
+    state: present
+  become: true
+  timeout: 300
+  when: (home_pc | default(false)) | bool
+
 - name: Check for rustup
   ansible.builtin.command: rustup --version
   register: rustup_check
