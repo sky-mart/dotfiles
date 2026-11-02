@@ -1,0 +1,56 @@
+@theme "~/.config/rofi/nord.rasi"
+
+* {
+    font: "FiraCode Nerd Font 12";
+}
+
+window {
+    width: 420px;
+    padding: 24px;
+    border: 1px;
+    border-radius: 18px;
+    border-color: @nord8;
+}
+
+mainbox {
+    spacing: 16px;
+    children: [ textbox-title, listview, textbox-hint ];
+}
+
+textbox-title {
+    str: "Power menu";
+    font: "FiraCode Nerd Font Bold 16";
+    text-color: @nord6;
+    background-color: transparent;
+}
+
+listview {
+    lines: 5;
+    columns: 1;
+    fixed-height: true;
+    dynamic: false;
+    scrollbar: false;
+    padding: 0px;
+    spacing: 8px;
+}
+
+element {
+    padding: 14px 16px;
+    border-radius: 10px;
+    background-color: @nord1;
+    text-color: @nord4;
+    children: [ element-text ];
+}
+
+element selected.normal {
+    background-color: @nord8;
+    text-color: @nord0;
+}
+
+textbox-hint {
+    str: "↑↓ Navigate   ↵ Select   Esc Cancel";
+    font: "FiraCode Nerd Font 9";
+    text-color: @nord9;
+    background-color: transparent;
+    horizontal-align: 0.5;
+}

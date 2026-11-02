@@ -301,6 +301,7 @@
   loop:
     - { src: rofi.rasi, dest: config.rasi }
     - { src: nord.rasi, dest: nord.rasi }
+    - { src: power-menu.rasi, dest: power-menu.rasi }
   loop_control:
     label: "{{ item.dest }}"
 

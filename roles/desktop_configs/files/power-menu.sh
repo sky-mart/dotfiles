@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 
-choice=$(printf '%s\n' lock suspend hibernate reboot 'power off' | rofi -dmenu -i -p power) || exit 0
+theme="$HOME/.config/rofi/power-menu.rasi"
+if [[ ! -f "$theme" ]]; then
+    theme="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/power-menu.rasi"
+fi
+
+choice=$(printf '%s\n' '  Lock' '  Suspend' '  Hibernate' '  Reboot' '  Power off' |
+    rofi -dmenu -i -no-custom -no-sort -format i -p 'Power menu' \
+        -theme "$theme") || exit 0
 
 case "$choice" in
-    lock) exec i3-msg "exec --no-startup-id \"$HOME/.local/bin/lock.sh\"" ;;
-    suspend) exec systemctl suspend ;;
-    hibernate) exec systemctl hibernate ;;
-    reboot) exec systemctl reboot ;;
-    'power off') exec systemctl poweroff ;;
+    0) exec i3-msg "exec --no-startup-id \"$HOME/.local/bin/lock.sh\"" ;;
+    1) exec systemctl suspend ;;
+    2) exec systemctl hibernate ;;
+    3) exec systemctl reboot ;;
+    4) exec systemctl poweroff ;;
     *) exit 2 ;;
 esac
