@@ -740,14 +740,17 @@
                          (file-name-as-directory
                           (expand-file-name org-directory)))))
 
-(defun mart/notes-stale-save-guard ()
-  (when (and (mart/notes-file-p buffer-file-name)
-             (file-exists-p buffer-file-name)
-             (not (verify-visited-file-modtime (current-buffer))))
-    (user-error
-     "Refusing to save stale notes buffer; revert the buffer first")))
+(defun mart/notes-save-guard ()
+  (when (mart/notes-file-p buffer-file-name)
+    (unless (eq 0 (call-process "mountpoint" nil nil nil "-q"
+                                (expand-file-name org-directory)))
+      (user-error "Refusing to save notes: %s is not mounted" org-directory))
+    (when (and (file-exists-p buffer-file-name)
+               (not (verify-visited-file-modtime (current-buffer))))
+      (user-error
+       "Refusing to save stale notes buffer; revert the buffer first"))))
 
-(add-hook 'before-save-hook #'mart/notes-stale-save-guard)
+(add-hook 'before-save-hook #'mart/notes-save-guard)
 
 (defun open-note (exact-file)
   (find-file (file-name-concat org-directory exact-file)))
