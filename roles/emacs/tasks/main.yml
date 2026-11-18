@@ -82,8 +82,11 @@
   ansible.builtin.include_tasks:
     file: "{{ playbook_dir }}/tasks/link_or_copy.yml"
   vars:
-    cp_src: init.el
-    cp_dest: ~/.emacs.d/init.el
+    cp_src: "{{ item }}"
+    cp_dest: "~/.emacs.d/{{ item }}"
+  loop:
+    - notes.el
+    - init.el
 
 - name: Create emacs environment file
   ansible.builtin.template:
