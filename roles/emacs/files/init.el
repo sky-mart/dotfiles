@@ -676,6 +676,10 @@
 (require 'org)
 (require 'org-crypt)
 
+(defvar mart/notes-dir "~/notes")
+(defvar mart/inbox-note "inbox")
+(defvar mart/work-note "tfh")
+
 (add-to-list 'org-modules 'org-habit t)
 (setq org-habit-show-all-today t
       org-startup-indented t         ;; Visually indent sections. This looks better for smaller files.
@@ -685,8 +689,8 @@
       org-src-fontify-natively t     ;; Code highlighting in code blocks
       org-support-shift-select t     ;; Allow shift selection with arrows
       org-startup-folded t           ;; Collapse all headlines
-      org-directory "~/notes"
-      org-agenda-files '("~/notes") ;; And all of those files should be in included agenda.
+      org-directory mart/notes-dir
+      org-agenda-files (list mart/notes-dir) ;; And all of those files should be in included agenda.
       org-crypt-key nil              ;; Use symmetric encryption unless CRYPTKEY is set.
       org-crypt-disable-auto-save 'encrypt
       org-todo-keywords '((sequence "TODO(1)" "IN-PROGRESS(2)" "WAITING(4)" "SOMEDAY(5)" "|" "DONE(3)" "CANCELED(6)"))
@@ -752,30 +756,59 @@
 
 (add-hook 'before-save-hook #'mart/notes-save-guard)
 
-(defun open-note (exact-file)
-  (find-file (file-name-concat org-directory exact-file)))
+(defun mart/note-path (note-name)
+  (expand-file-name (concat note-name ".org") org-directory))
+
+(defun mart/open-note (note-name)
+  (find-file (mart/note-path note-name)))
 
 (defun mart/new-inbox-entry ()
   (interactive)
-  (open-note "inbox.org")
-  (end-of-buffer)
+  (mart/open-note mart/inbox-note)
+  (goto-char (point-max))
   (org-meta-return))
 
 (with-eval-after-load 'hydra
   (mart/defhydra-bilingual notes-launcher (:color blue) "Open notes"
-    ("d" "в" (open-note "journal.org") "Diary")
-    ("i" "ш" (open-note "inbox.org") "Inbox")
-    ("t" "е" (open-note "texts.org") "Texts")
-    ("w" "ц" (open-note "tfh.org") "TFH")
+    ("d" "в" (mart/open-note "journal") "Diary")
+    ("i" "ш" (mart/open-note mart/inbox-note) "Inbox")
+    ("t" "е" (mart/open-note "texts") "Texts")
+    ("w" "ц" (mart/open-note mart/work-note) "TFH")
     ("k" "л" (dired "~/notes/kb") "KB")
     ("j" "о" (dired "~/notes/projects") "Projects")
-    ("s" "ы" (open-note "kb/stats.org") "Stats")
-    ("r" "к" (open-note "projects/archive/archive.org") "Archive")
+    ("s" "ы" (mart/open-note "kb/stats") "Stats")
+    ("r" "к" (mart/open-note "projects/archive/archive") "Archive")
     ("a" "ф" (org-agenda-list) "Agenda")
     ("g" "п" (mart/org-gcal-push-buffer) "Push buffer to Google Calendar")
     ("G" "П" (mart/org-gcal-post-at-point) "Post entry to Google Calendar")
     ("n" "т" (mart/new-inbox-entry) "New inbox"))
   (global-set-key (kbd "C-`") #'notes-launcher/body))
+
+(defun mart/previous-workday-date ()
+  "Return yesterday's date, or Friday's date on Monday."
+  (let* ((now (current-time))
+         (days-back (if (= (decoded-time-weekday (decode-time now)) 1)
+                        3
+                      1)))
+    (format-time-string "%d.%m.%Y"
+                        (time-subtract now (days-to-time days-back)))))
+
+(defun mart/log-work-journal (&optional date)
+  (mart/open-note 'mart/work-note)
+  (widen)
+  (goto-char (org-find-olp '("Journal") t))
+  (org-end-of-subtree t t)
+  (unless (bolp) (insert "\n"))
+  (insert (format "** %s\n"
+                  (or date (mart/previous-workday-date))))
+  (org-paste-subtree
+   3
+   (with-temp-buffer
+     (insert-file-contents (mart/note-path 'mart/inbox-note))
+     (buffer-string)))
+  (save-buffer)
+  (mart/open-note 'mart/inbox-note)
+  (erase-buffer))
 
 ;; requires pandoc
 (use-package markdown-mode
